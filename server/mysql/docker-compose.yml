@@ -1,0 +1,15 @@
+version: "3"
+services:
+  
+  mysqldb:
+    image: mymysql
+    ports:
+      - 3309:3306
+    networks:
+      - employee-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=root
+
+networks:
+  employee-mysql: 

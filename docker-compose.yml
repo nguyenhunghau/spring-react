@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  mysqldb:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - 3308:3306
+    networks:
+      - server
+    environment:
+      MYSQL_DATABASE: FABER_EXTRACT
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+      - db-data:/var/lib/mysql
+      
+  maven:
+    image: maven:3.5-jdk-8
+    ports:
+      - 8181:8088
+    restart: always
+    working_dir: /
+    volumes:
+      - ./:/app
+      - ~/.m2:/root/.m2
+    command: mvn clean spring-boot:run
+    networks:
+      - server
+      - client
+    depends_on:
+      - mysqldb
+      
+  react:
+    build: ./client
+    restart: always
+    ports:
+      - 80:80
+    networks:
+      - client
+volumes:
+  db-data:
+  
+networks:
+  server:
+  client:
