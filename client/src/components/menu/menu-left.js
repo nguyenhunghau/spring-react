@@ -38,7 +38,7 @@ const MenuLeft = () => {
         .then(resp => {
             setNavData(resp);
         })
-    });
+    }, []);
 
     const expandChild = (ev) => {
         console.log(ev);
