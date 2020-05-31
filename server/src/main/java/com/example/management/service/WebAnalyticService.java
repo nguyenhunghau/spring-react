@@ -68,11 +68,22 @@ public class WebAnalyticService {
         if (list.isEmpty()) {
             throw new UrlException("Can find any Job");
         }
+        boolean isStopRun = false;
+        List<JobEntity> saveList = new ArrayList<>();
         for(JobEntity entity: list) {
+            JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
+            if(jobExist != null) {
+                isStopRun = true;
+                break;
+            }
             String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
             entity.setTagIds(tagIdJoiner);
+            saveList.add(entity);
         }
-        jobRepository.saveAll(list);
+        jobRepository.saveAll(saveList);
+        if(isStopRun) {
+            throw new UrlException("Found all new jobs");
+        }
         return list;
     }
 

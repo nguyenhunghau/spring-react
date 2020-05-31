@@ -49,11 +49,11 @@ public class ProxyUrlUtils implements URLUtils {
             URL urlObject = new URL(url);
             String urlMain = urlObject.getProtocol() + "://" + urlObject.getHost();
             res = connectURL(url, getCookieMap(urlMain), true);
-
-            if (res.statusCode() != 200 || res.parse().html().isEmpty()) {
+            String html = res.parse().html();
+            if (res.statusCode() != 200 || html.isEmpty()) {
                 throw new UrlException("Fail get html content");
             }
-            Document document = Jsoup.parse(res.parse().html());
+            Document document = Jsoup.parse(html);
             Elements elements = document.select(queryMap.get("ITEM"));//get list item result
 
             for (Element element : elements) {
@@ -71,12 +71,13 @@ public class ProxyUrlUtils implements URLUtils {
         String title = element.select(queryMap.get("TITLE")).text();
         String company = element.select(queryMap.get("COMPANY")).attr("alt");
         String requireYear = "";// element.select(queryMap.get("REQUIRE_YEAR")).text();
-        String datePost = element.select(queryMap.get("DATE_POST")).text();
+        String datePost = element.select(queryMap.get("DATE_POST")).text().trim();
         String description = element.select(queryMap.get("DESCRIPTION")).text();
         String link = makeFullUrl(mainUrl, element.select(queryMap.get("LINK")).attr("href"));
         String tag = element.select(queryMap.get("TAG")).text();
         String address = element.select(queryMap.get("ADDRESS")).text();
-        Date date = TimeUtils.createDate(datePost);
+        String[] dateArray = datePost.split(" ");
+        Date date = dateArray.length > 1? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]): new Date();
         return new JobEntity(Integer.SIZE, title, company, requireYear, date, description, link, tag, address, null);
     }
 
@@ -121,7 +122,7 @@ public class ProxyUrlUtils implements URLUtils {
         System.setProperty("https.protocols", "TLSv1.2");
         try {
             Response res = Jsoup.connect(url)
-                    .cookies(cookieMap)
+//                    .cookies(cookieMap)
                     .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31")
                     .timeout(30000).ignoreContentType(true).ignoreHttpErrors(true).followRedirects(isFollowRedirect).execute();
 //            result[1] = res.statusCode() + "";

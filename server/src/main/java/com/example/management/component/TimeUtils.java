@@ -19,11 +19,11 @@ public class TimeUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(dateNow);
         if (unitBefore.startsWith("hour")) {
-            cal.add(time * -1, Calendar.HOUR);
+            cal.add(Calendar.HOUR, time * -1);
         } else if (unitBefore.startsWith("minute")) {
-            cal.add(time * -1, Calendar.MINUTE);
+            cal.add(Calendar.MINUTE, time * -1);
         } else {
-            cal.add(time * -1, Calendar.DATE);
+            cal.add(Calendar.DATE, time * -1);
         }
         return cal.getTime();
     }

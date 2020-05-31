@@ -7,6 +7,7 @@ package com.example.management.repository;
 
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.WebAnalyticEntity;
+import java.util.Date;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -15,4 +16,5 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface JobRepository extends CrudRepository<JobEntity, Integer> {
     
+    public JobEntity findByDatePostAndTitle(Date datePost, String title);
 }
