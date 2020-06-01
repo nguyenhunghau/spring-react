@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
  * @author USER
  */
 @Component
-public class ProxyUrlUtils implements URLUtils {
+public class ProxyUrlUtils extends URLUtils {
 
     @Value("${login.email}")
     private String email;
@@ -114,28 +114,7 @@ public class ProxyUrlUtils implements URLUtils {
         return null;
     }
 
-    public Response connectURL(String url, Map<String, String> cookieMap, boolean isFollowRedirect) {
-        String[] result = {"", "408", ""};
-        System.getProperties().put("proxySet", "true");
-        System.getProperties().put("proxyHost", "host");
-        System.getProperties().put("proxyPort", "port");
-        System.setProperty("https.protocols", "TLSv1.2");
-        try {
-            Response res = Jsoup.connect(url)
-//                    .cookies(cookieMap)
-                    .userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31")
-                    .timeout(30000).ignoreContentType(true).ignoreHttpErrors(true).followRedirects(isFollowRedirect).execute();
-//            result[1] = res.statusCode() + "";
-//            result[2] = res.contentType();
-//            if (res.statusCode() == 200) {
-//                result[0] = res.parse().html();
-//            }
-            return res;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-        return null;
-    }
+    
 
     private Map<String, String> getCookieMap(String urlMain) throws UrlException, IOException {
         Response resp = connectURL(urlMain, new HashMap<String, String>(), false);

@@ -21,4 +21,5 @@ public interface WebAnalyticRepository extends CrudRepository<WebAnalyticEntity,
    
     @Query(value = "SELECT u FROM WebAnalyticEntity u WHERE u.isActive=1")
     public List<WebAnalyticEntity> findActiveList();
+    
 }

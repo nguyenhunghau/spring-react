@@ -30,16 +30,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "job")
 @XmlRootElement
-//@NamedQueries({
-//    @NamedQuery(name = "Job.findAll", query = "SELECT j FROM Job j")
-//    , @NamedQuery(name = "Job.findById", query = "SELECT j FROM Job j WHERE j.id = :id")
-//    , @NamedQuery(name = "Job.findByTitle", query = "SELECT j FROM Job j WHERE j.title = :title")
-//    , @NamedQuery(name = "Job.findByCompany", query = "SELECT j FROM Job j WHERE j.company = :company")
-//    , @NamedQuery(name = "Job.findByRequireYear", query = "SELECT j FROM Job j WHERE j.requireYear = :requireYear")
-//    , @NamedQuery(name = "Job.findByDatePost", query = "SELECT j FROM Job j WHERE j.datePost = :datePost")
-//    , @NamedQuery(name = "Job.findByTagIds", query = "SELECT j FROM Job j WHERE j.tagIds = :tagIds")
-//    , @NamedQuery(name = "Job.findByAddress", query = "SELECT j FROM Job j WHERE j.address = :address")
-//    , @NamedQuery(name = "Job.findByCreated", query = "SELECT j FROM Job j WHERE j.created = :created")})
+@NamedQueries({
+    @NamedQuery(name = "JobEntity.findAll", query = "SELECT j FROM JobEntity j")
+    , @NamedQuery(name = "JobEntity.findById", query = "SELECT j FROM JobEntity j WHERE j.id = :id")
+    , @NamedQuery(name = "JobEntity.findByTitle", query = "SELECT j FROM JobEntity j WHERE j.title = :title")
+    , @NamedQuery(name = "JobEntity.findByCompany", query = "SELECT j FROM JobEntity j WHERE j.company = :company")
+    , @NamedQuery(name = "JobEntity.findByRequireYear", query = "SELECT j FROM JobEntity j WHERE j.requireYear = :requireYear")
+    , @NamedQuery(name = "JobEntity.findByDatePostAndTitle", query = "SELECT j FROM JobEntity j WHERE j.datePost = :datePost and j.title = :title")
+    , @NamedQuery(name = "JobEntity.findByTagIds", query = "SELECT j FROM JobEntity j WHERE j.tagIds = :tagIds")
+    , @NamedQuery(name = "JobEntity.findByAddress", query = "SELECT j FROM JobEntity j WHERE j.address = :address")
+    , @NamedQuery(name = "JobEntity.findByCreated", query = "SELECT j FROM JobEntity j WHERE j.created = :created")})
 public class JobEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
