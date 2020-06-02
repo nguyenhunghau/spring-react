@@ -12,6 +12,6 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface QueryCheckerRepository extends CrudRepository<WebAnalyticEntity, Integer> {
     
-    @Query(value = "SELECT u FROM QueryCheckerEntity u WHERE u.isActive=1")
-    public List<QueryCheckerEntity> findActiveList();
+    @Query(value = "SELECT u FROM QueryCheckerEntity u WHERE u.isActive=1 and webAnalytic.id=:webAnalyticId")
+    public List<QueryCheckerEntity> findActiveList(int webAnalyticId);
 }

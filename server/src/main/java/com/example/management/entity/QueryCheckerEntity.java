@@ -13,6 +13,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
@@ -57,6 +59,10 @@ public class QueryCheckerEntity implements Serializable {
     @Column(name = "CREATED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
+    
+    @ManyToOne
+    @JoinColumn(name = "WEB_ANALYTIC_ID")
+    private WebAnalyticEntity webAnalytic;
 
     public QueryCheckerEntity() {
     }
@@ -108,6 +114,14 @@ public class QueryCheckerEntity implements Serializable {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public WebAnalyticEntity getWebAnalytic() {
+        return webAnalytic;
+    }
+
+    public void setWebAnalytic(WebAnalyticEntity webAnalytic) {
+        this.webAnalytic = webAnalytic;
     }
    
 }

@@ -1,5 +1,7 @@
 package com.example.management.service;
 
+import com.example.management.component.JsonUrlUtils;
+import com.example.management.component.ProxyUrlUtils;
 import com.example.management.component.URLUtils;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
@@ -32,7 +34,10 @@ public class WebAnalyticService {
     private WebAnalyticRepository webAnalyticRepository;
 
     @Autowired
-    private URLUtils urlUtils;
+    private ProxyUrlUtils urlUtils;
+    
+    @Autowired
+    private JsonUrlUtils jsonUrlUtils;
 
     @Autowired
     private QueryCheckerRepository queryCheckerRepository;
@@ -42,11 +47,41 @@ public class WebAnalyticService {
     
     @Autowired
     private TagRepository tagRepository;
-
+    
     public List<JobEntity> analytics() {
         List<JobEntity> resultList = new ArrayList<>();
+        return analyticsVietNamWork();
+    }
+    
+    public List<JobEntity> analyticsVietNamWork() {
+        List<JobEntity> resultList = new ArrayList<>();
         List<WebAnalyticEntity> list = webAnalyticRepository.findActiveList();
-        List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList();
+        List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);
+        Map<String, String> selectorMap = queryCheckerList.stream().collect(
+                Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
+        int page = 1;
+        for (WebAnalyticEntity item : list) {
+            try {
+                resultList.addAll(jsonUrlUtils.analyticsData(item.getLink(), selectorMap));
+//            while (true) {
+//                try {
+//                    resultList.addAll(analyticsUrl(item.getLink() + "?page=" + page++, selectorMap));
+//                } catch (UrlException ex) {
+//                    Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+//                    break;
+//                }
+//            }
+            } catch (UrlException ex) {
+                Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return resultList;
+    }
+
+    public List<JobEntity> analyticsItViec() {
+        List<JobEntity> resultList = new ArrayList<>();
+        List<WebAnalyticEntity> list = webAnalyticRepository.findActiveList();
+        List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(1);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
                 Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
         int page = 1;
