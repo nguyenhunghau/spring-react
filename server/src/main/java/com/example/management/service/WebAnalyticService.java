@@ -53,6 +53,10 @@ public class WebAnalyticService {
         resultList.addAll(analyticsItViec());
         return resultList;
     }
+    
+    public void testCron() {
+        System.out.println("Hello");
+    }
 
     public List<JobEntity> analyticsVietNamWork() {
         List<JobEntity> saveList = new ArrayList<>();
