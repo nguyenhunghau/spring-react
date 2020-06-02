@@ -2,7 +2,6 @@ package com.example.management.service;
 
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
-import com.example.management.component.URLUtils;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
@@ -35,7 +34,7 @@ public class WebAnalyticService {
 
     @Autowired
     private ProxyUrlUtils urlUtils;
-    
+
     @Autowired
     private JsonUrlUtils jsonUrlUtils;
 
@@ -44,55 +43,57 @@ public class WebAnalyticService {
 
     @Autowired
     private JobRepository jobRepository;
-    
+
     @Autowired
     private TagRepository tagRepository;
-    
+
     public List<JobEntity> analytics() {
         List<JobEntity> resultList = new ArrayList<>();
-        return analyticsVietNamWork();
+//        resultList.addAll(analyticsVietNamWork());
+        resultList.addAll(analyticsItViec());
+        return resultList;
     }
-    
+
     public List<JobEntity> analyticsVietNamWork() {
-        List<JobEntity> resultList = new ArrayList<>();
-        List<WebAnalyticEntity> list = webAnalyticRepository.findActiveList();
+        List<JobEntity> saveList = new ArrayList<>();
+        WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(2).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
                 Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
         int page = 1;
-        for (WebAnalyticEntity item : list) {
-            try {
-                resultList.addAll(jsonUrlUtils.analyticsData(item.getLink(), selectorMap));
-//            while (true) {
-//                try {
-//                    resultList.addAll(analyticsUrl(item.getLink() + "?page=" + page++, selectorMap));
-//                } catch (UrlException ex) {
-//                    Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
-//                    break;
-//                }
-//            }
-            } catch (UrlException ex) {
-                Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+        try {
+            List<JobEntity> list = jsonUrlUtils.analyticsData(webAnalyticEntity.getLink(), selectorMap);
+            boolean isStopRun = false;
+            for (JobEntity entity : list) {
+                JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
+                if (jobExist != null) {
+                    isStopRun = true;
+                    break;
+                }
+                String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
+                entity.setTagIds(tagIdJoiner);
+                saveList.add(entity);
             }
+            jobRepository.saveAll(saveList);
+        } catch (UrlException ex) {
+            Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return resultList;
+        return saveList;
     }
 
     public List<JobEntity> analyticsItViec() {
         List<JobEntity> resultList = new ArrayList<>();
-        List<WebAnalyticEntity> list = webAnalyticRepository.findActiveList();
+        WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(1).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(1);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
                 Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
         int page = 1;
-        for (WebAnalyticEntity item : list) {
-            while (true) {
-                try {
-                    resultList.addAll(analyticsUrl(item.getLink() + "?page=" + page++, selectorMap));
-                } catch (UrlException ex) {
-                    Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
-                    break;
-                }
+        while (true) {
+            try {
+                resultList.addAll(analyticsUrl(webAnalyticEntity.getLink() + "?page=" + page++, selectorMap));
+            } catch (UrlException ex) {
+                Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+                break;
             }
         }
         return resultList;
@@ -105,9 +106,9 @@ public class WebAnalyticService {
         }
         boolean isStopRun = false;
         List<JobEntity> saveList = new ArrayList<>();
-        for(JobEntity entity: list) {
+        for (JobEntity entity : list) {
             JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
-            if(jobExist != null) {
+            if (jobExist != null) {
                 isStopRun = true;
                 break;
             }
@@ -115,8 +116,9 @@ public class WebAnalyticService {
             entity.setTagIds(tagIdJoiner);
             saveList.add(entity);
         }
+        System.out.println("Size of list " + saveList.size());
         jobRepository.saveAll(saveList);
-        if(isStopRun) {
+        if (isStopRun) {
             throw new UrlException("Found all new jobs");
         }
         return list;
@@ -125,33 +127,33 @@ public class WebAnalyticService {
     private String makeTagIdJoiner(String tagNames) {
         String[] tagNameArray = tagNames.split(" ");
         StringJoiner joiner = new StringJoiner(",");
-        for(String tag: tagNameArray) {
+        for (String tag : tagNameArray) {
             TagEntity entity = tagRepository.findByName(tag);
-            if(entity == null) {
+            if (entity == null) {
                 entity = new TagEntity();
                 entity.setName(tag);
                 entity = tagRepository.save(entity);
             }
-            
+
             joiner.add(String.valueOf(entity.getId()));
         }
         return joiner.toString();
     }
-    
+
     public List<JobEntity> findAll() {
-        List<JobEntity> jobList = (List<JobEntity>)jobRepository.findAll();
-        for(JobEntity entity: jobList) {
+        List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
+        for (JobEntity entity : jobList) {
             String[] tagIdArray = entity.getTagIds().split(",");
             entity.setTagIds(makeTagNameJoiner(tagIdArray));
         }
         return jobList;
     }
-    
+
     private String makeTagNameJoiner(String[] tagIdArray) {
         StringJoiner joiner = new StringJoiner(" ");
-        for(String id: tagIdArray) {
+        for (String id : tagIdArray) {
             Optional<TagEntity> entity = tagRepository.findById(Integer.parseInt(id));
-            if(entity.isPresent()) {
+            if (entity.isPresent()) {
                 joiner.add(entity.get().getName());
             }
         }

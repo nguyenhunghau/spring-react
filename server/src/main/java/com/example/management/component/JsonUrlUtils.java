@@ -1,26 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.management.component;
 
 import com.example.management.entity.JobEntity;
 import com.example.management.exception.UrlException;
+import com.google.gson.Gson;
 import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPath;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.scene.shape.Path;
-import org.jsoup.Connection;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 /**
@@ -30,46 +28,72 @@ import org.springframework.stereotype.Component;
 @Component
 public class JsonUrlUtils extends URLUtils {
 
+    private static final String DOMAIN = "https://www.vietnamworks.com/";
+
     @Override
     public List<JobEntity> analyticsData(String url, Map<String, String> queryMap) throws UrlException {
 
         //Connect to get data Json
         List<JobEntity> resultList = new ArrayList<>();
-        Connection.Response res = null;
         try {
-//            res = connectURL(url, new HashMap<String, String>(), true);
-//            String html = res.parse().html();
-//            if (res.statusCode() != 200 || html.isEmpty()) {
-//                throw new UrlException("Fail get html content");
-//            }
             //Parse json from html result
-            String json = getJsonResult();
+            String json = getJsonResult(); //MyConnection.callPostMethod(url, "");
             Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
 
             //Get number item
             int numberItem = JsonPath.read(document, "$.results[0].hits.length()");
             for (int i = 0; i < numberItem; i++) {
                 String[] descriptionQueryArray = makeQueryChecker(queryMap, "DESCRIPTION", i).split("\n");
-                String description = "";
-                for (String query : descriptionQueryArray) {
-                    List<String> dataList = JsonPath.read(document, query);
-                    description += String.join("\n", dataList);
-                }
+                String description = makeDescription(document, descriptionQueryArray);
                 String title = JsonPath.read(document, makeQueryChecker(queryMap, "TITLE", i));
                 String company = JsonPath.read(document, makeQueryChecker(queryMap, "COMPANY", i));
-                String link = JsonPath.read(document, makeQueryChecker(queryMap, "LINK", i));
-                resultList.add(new JobEntity(0, title, company, title, null, description, link, link, title, null));
+                String link = makeLink(document, makeQueryChecker(queryMap, "LINK", i).split("\n"));
+                String tags = makeDataFromJsonArray(document, makeQueryChecker(queryMap, "TAG", i));
+                String address = makeDataFromJsonArray(document, makeQueryChecker(queryMap, "ADDRESS", i));
+                int publishDate = JsonPath.read(document, makeQueryChecker(queryMap, "DATE_POST", i));
+                int expiredDate = JsonPath.read(document, makeQueryChecker(queryMap, "DATE_EXPIRED", i));
+                resultList.add(new JobEntity(0, title, company, "", makeDatePost(publishDate), makeDatePost(expiredDate), description, link, tags, address, null));
             }
-
-            //Handle link from alias
-        } catch (Exception ex) {
+        } catch (InvalidJsonException ex) {
             Logger.getLogger(JsonUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return resultList;
     }
 
+    private String makeDescription(Object document, String[] descriptionQueryArray) {
+        Map<String, String> desMap = new HashMap<>();
+        for (String query : descriptionQueryArray) {
+            Object data = JsonPath.read(document, query);
+            String keyOfDescription = query.substring(query.lastIndexOf(".") + 1);
+            if (data instanceof List) {
+                desMap.put(keyOfDescription, String.join("\n", (List<String>) data));
+            } else {
+                desMap.put(keyOfDescription, String.valueOf(data));
+            }
+        }
+        return new Gson().toJson(desMap);
+    }
+
+    private String makeLink(Object document, String[] linkQueryArray) {
+        StringJoiner joiner = new StringJoiner("-");
+        for (String query : linkQueryArray) {
+            Object data = JsonPath.read(document, query);
+            joiner.add(String.valueOf(data));
+        }
+        return DOMAIN + joiner.toString() + "-jd";
+    }
+
+    private String makeDataFromJsonArray(Object document, String query) {
+        List<String> dataList = JsonPath.read(document, query);
+        return dataList.stream().map(item -> item.replace(" ", "-")).collect(Collectors.joining(" "));
+    }
+
+    private Date makeDatePost(int data) {
+        return new Date(Long.valueOf(data + "000"));
+    }
+
     private String getJsonResult() throws UrlException {
-        String data = JsonUrlUtils.class.getResource("/vietnamwork.json").getPath().toString().substring(1);
+        String data = JsonUrlUtils.class.getResource("/vietnamwork.json").getPath().substring(1);
         java.nio.file.Path path = Paths.get(data);
         try {
             return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);

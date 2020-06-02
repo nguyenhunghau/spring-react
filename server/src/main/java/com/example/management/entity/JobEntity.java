@@ -19,7 +19,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -58,8 +57,13 @@ public class JobEntity implements Serializable {
     @Column(name = "REQUIRE_YEAR")
     private String requireYear;
     @Column(name = "DATE_POST")
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date datePost;
+    
+    @Column(name = "DATE_EXPIRED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateExpired;
+    
     @Lob
     @Size(max = 65535)
     @Column(name = "DESCRIPTION")
@@ -83,7 +87,8 @@ public class JobEntity implements Serializable {
     public JobEntity() {
     }
 
-    public JobEntity(Integer id, String title, String company, String requireYear, Date datePost, String description, String link, String tagIds, String address, Date created) {
+    public JobEntity(Integer id, String title, String company, String requireYear, Date datePost, Date dateExpired, 
+            String description, String link, String tagIds, String address, Date created) {
         this.id = id;
         this.title = title;
         this.company = company;
@@ -94,6 +99,7 @@ public class JobEntity implements Serializable {
         this.tagIds = tagIds;
         this.address = address;
         this.created = created;
+        this.dateExpired = dateExpired;
     }
 
     
@@ -184,5 +190,13 @@ public class JobEntity implements Serializable {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public Date getDateExpired() {
+        return dateExpired;
+    }
+
+    public void setDateExpired(Date dateExpired) {
+        this.dateExpired = dateExpired;
     }
 }

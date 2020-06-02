@@ -5,10 +5,7 @@
  */
 package com.example.management.repository;
 
-import com.example.management.entity.StaffEntity;
 import com.example.management.entity.WebAnalyticEntity;
-import java.util.List;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WebAnalyticRepository extends CrudRepository<WebAnalyticEntity, Integer> {
    
-    @Query(value = "SELECT u FROM WebAnalyticEntity u WHERE u.isActive=1")
-    public List<WebAnalyticEntity> findActiveList();
+//    @Query(value = "SELECT u FROM WebAnalyticEntity u WHERE u.id=1")
+//    public WebAnalyticEntity findById(int id);
     
 }

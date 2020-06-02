@@ -6,8 +6,8 @@
 package com.example.management.component;
 
 import com.example.management.entity.JobEntity;
-import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.exception.UrlException;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,10 +39,12 @@ public class ProxyUrlUtils extends URLUtils {
 
     @Value("${login.password}")
     private String password;
+    
+    @Value("${login.session}")
+    private String sessionToken;
 
     @Override
     public List<JobEntity> analyticsData(String url, Map<String, String> queryMap) throws UrlException {
-//        Map<String, String> cookieMap = getCookieMap(url);\
         List<JobEntity> resultList = new ArrayList<>();
         Response res = null;
         try {
@@ -72,13 +74,22 @@ public class ProxyUrlUtils extends URLUtils {
         String company = element.select(queryMap.get("COMPANY")).attr("alt");
         String requireYear = "";// element.select(queryMap.get("REQUIRE_YEAR")).text();
         String datePost = element.select(queryMap.get("DATE_POST")).text().trim();
-        String description = element.select(queryMap.get("DESCRIPTION")).text();
+        String description = makeDescription(element, queryMap.get("DESCRIPTION").split("\n"));
         String link = makeFullUrl(mainUrl, element.select(queryMap.get("LINK")).attr("href"));
         String tag = element.select(queryMap.get("TAG")).text();
         String address = element.select(queryMap.get("ADDRESS")).text();
         String[] dateArray = datePost.split(" ");
         Date date = dateArray.length > 1? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]): new Date();
-        return new JobEntity(Integer.SIZE, title, company, requireYear, date, description, link, tag, address, null);
+        return new JobEntity(0, title, company, requireYear, date, null, description, link, tag, address, null);
+    }
+    
+    private String makeDescription(Element element, String[] descriptionQueryArray) {
+        Map<String, String> desMap = new HashMap<>();
+        for (String query : descriptionQueryArray) {
+            String keyOfDescription = query.substring(query.lastIndexOf(".") + 1);
+            desMap.put(keyOfDescription, element.select(query).text());
+        }
+        return new Gson().toJson(desMap);
     }
 
     private String makeFullUrl(String mainUrl, String link) throws UrlException {
@@ -117,20 +128,20 @@ public class ProxyUrlUtils extends URLUtils {
     
 
     private Map<String, String> getCookieMap(String urlMain) throws UrlException, IOException {
-        Response resp = connectURL(urlMain, new HashMap<String, String>(), false);
-        Document doc = resp.parse();
-        String csrf = doc.select("input[name=authenticity_token]").val();
+//        Response resp = connectURL(urlMain, new HashMap<String, String>(), false);
+//        Document doc = resp.parse();
+//        String csrf = doc.select("input[name=authenticity_token]").val();
 
         Map<String, String> cookieMap = new HashMap<>();
-        resp = login(csrf, urlMain + "/sign_in", resp.cookies(), true);
-        System.out.println(resp.parse().html());
-//        if (resp.statusCode() != 200) {
-//            throw new UrlException("Fail get html content");
-//        }
-//        Document doc = Jsoup.parse(resultConnect[0]);
-        String sessionId = resp.cookie("_ITViec_session");
-        System.out.println(sessionId);
-        cookieMap.put("_ITViec_session", resp.cookie("_ITViec_session"));
+//        resp = login(csrf, urlMain + "/sign_in", resp.cookies(), true);
+//        System.out.println(resp.parse().html());
+////        if (resp.statusCode() != 200) {
+////            throw new UrlException("Fail get html content");
+////        }
+////        Document doc = Jsoup.parse(resultConnect[0]);
+//        String sessionId = resp.cookie("_ITViec_session");
+//        System.out.println(sessionId);
+        cookieMap.put("_ITViec_session", sessionToken);
         return cookieMap;
     }
 
