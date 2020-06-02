@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.management.component;
 
+//<editor-fold defaultstate="collapsed" desc="IMPORT">
 import com.example.management.entity.JobEntity;
 import com.example.management.exception.UrlException;
 import com.google.gson.Gson;
@@ -26,6 +22,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+//</editor-fold>
 
 /**
  *
@@ -62,7 +59,7 @@ public class ProxyUrlUtils extends URLUtils {
                 resultList.add(createJobEntity(url, element, queryMap));
             }
         } catch (IOException ex) {
-            Logger.getLogger(ProxyUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
+//          Logger.getLogger(ProxyUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
             throw new UrlException("Fail get html content");
         }
 
