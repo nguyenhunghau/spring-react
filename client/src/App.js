@@ -6,6 +6,7 @@ import Home from './pages/home/index';
 import Widgets from './pages/widgets/index';
 import Validation from './pages/form/validation';
 import Table from './pages/form/table';
+import Job  from './pages/job/index';
 
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
