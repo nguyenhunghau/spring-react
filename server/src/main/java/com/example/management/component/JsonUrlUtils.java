@@ -19,6 +19,7 @@ import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,15 +32,16 @@ public class JsonUrlUtils extends URLUtils {
     private static final String DOMAIN = "https://www.vietnamworks.com/";
 
     @Override
-    public List<JobEntity> analyticsData(String url, Map<String, String> queryMap) throws UrlException {
+    public List<JobEntity> analyticsData(String url, Map<String, String> queryMap, String body) throws UrlException {
 
         //Connect to get data Json
         List<JobEntity> resultList = new ArrayList<>();
         try {
             //Parse json from html result
-            String json = getJsonResult(); //MyConnection.callPostMethod(url, "");
+            String json = MyConnection.callPostMethod(url, body);
+            System.out.println(json);
             Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
-
+            
             //Get number item
             int numberItem = JsonPath.read(document, "$.results[0].hits.length()");
             for (int i = 0; i < numberItem; i++) {

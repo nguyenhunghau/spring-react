@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,42 +48,55 @@ public class WebAnalyticService {
     @Autowired
     private TagRepository tagRepository;
 
+    @Value("${data.vietnamwork}")
+    private String bodyAPI;
+
     public List<JobEntity> analytics() {
         List<JobEntity> resultList = new ArrayList<>();
-//        resultList.addAll(analyticsVietNamWork());
+        resultList.addAll(analyticsVietNamWork());
         resultList.addAll(analyticsItViec());
         return resultList;
     }
-    
+
     public void testCron() {
         System.out.println("Hello");
     }
 
     public List<JobEntity> analyticsVietNamWork() {
-        List<JobEntity> saveList = new ArrayList<>();
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(2).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
                 Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
-        int page = 1;
+        int page = 0;
         try {
-            List<JobEntity> list = jsonUrlUtils.analyticsData(webAnalyticEntity.getLink(), selectorMap);
-            boolean isStopRun = false;
-            for (JobEntity entity : list) {
-                JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
-                if (jobExist != null) {
-                    isStopRun = true;
-                    break;
+            while (true) {
+                List<JobEntity> saveList = new ArrayList<>();
+                String body = bodyAPI.replace("{item}", String.valueOf(page++));
+                List<JobEntity> list = jsonUrlUtils.analyticsData(webAnalyticEntity.getLink(), selectorMap, body);
+                if (list.isEmpty()) {
+                    return saveList;
                 }
-                String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
-                entity.setTagIds(tagIdJoiner);
-                saveList.add(entity);
+                boolean isStopRun = false;
+                for (JobEntity entity : list) {
+                    JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
+                    if (jobExist != null) {
+                        isStopRun = true;
+                        break;
+                    }
+                    String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
+                    entity.setTagIds(tagIdJoiner);
+                    saveList.add(entity);
+                }
+                jobRepository.saveAll(saveList);
+                if (isStopRun) {
+                    return saveList;
+                }
             }
-            jobRepository.saveAll(saveList);
+
         } catch (UrlException ex) {
             Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return saveList;
+        return new ArrayList<>();
     }
 
     public List<JobEntity> analyticsItViec() {
@@ -104,7 +118,7 @@ public class WebAnalyticService {
     }
 
     private List<JobEntity> analyticsUrl(String url, Map<String, String> selectorMap) throws UrlException {
-        List<JobEntity> list = urlUtils.analyticsData(url, selectorMap);
+        List<JobEntity> list = urlUtils.analyticsData(url, selectorMap, "");
         if (list.isEmpty()) {
             throw new UrlException("Can find any Job");
         }

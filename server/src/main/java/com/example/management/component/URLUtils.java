@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public abstract class URLUtils {
     
-    public abstract List<JobEntity> analyticsData(String url, Map<String, String> queryMap) throws UrlException;
+    public abstract List<JobEntity> analyticsData(String url, Map<String, String> queryMap, String body) throws UrlException;
     
     public Connection.Response connectURL(String url, Map<String, String> cookieMap, boolean isFollowRedirect) {
         System.getProperties().put("proxySet", "true");

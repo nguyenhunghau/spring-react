@@ -29,4 +29,9 @@ public class JobController {
     public ResponseEntity<List<JobEntity>> index() {
         return new ResponseEntity<>(webAnalyticService.analytics(), HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public ResponseEntity<List<JobEntity>> list() {
+        return new ResponseEntity<>(webAnalyticService.findAll(), HttpStatus.OK);
+    }
 }

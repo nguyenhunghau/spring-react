@@ -39,9 +39,9 @@ public class ProxyUrlUtils extends URLUtils {
     
     @Value("${login.session}")
     private String sessionToken;
-
+    
     @Override
-    public List<JobEntity> analyticsData(String url, Map<String, String> queryMap) throws UrlException {
+    public List<JobEntity> analyticsData(String url, Map<String, String> queryMap, String body) throws UrlException {
         List<JobEntity> resultList = new ArrayList<>();
         Response res = null;
         try {

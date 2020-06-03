@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
         exclude = {
             org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,}
 )
-@EnableScheduling
+//@EnableScheduling
 public class ManagementApplication {
 
     private static final Logger logger = LoggerFactory.getLogger(ManagementApplication.class);
