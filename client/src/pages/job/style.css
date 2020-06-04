@@ -11,3 +11,12 @@
     content: "\2191";
     opacity: 0.4;
 }
+@media only screen and (max-width: 1301px) {
+    body {
+      font-size: 10px;
+    }
+  }
+
+.card-body {
+    overflow-x: scroll;
+}

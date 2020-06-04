@@ -3,19 +3,34 @@ import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
 import DataTable, { createTheme, Button } from 'react-data-table-component';
 import dataJob from '../../list.json';
+import '../job/style.css';
 import Moment from 'react-moment';
 import BootstrapTable from 'react-bootstrap-table-next';
-import filterFactory, { selectFilter, dateFilter, textFilter  } from 'react-bootstrap-table2-filter';
+import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 
 export default function Table() {
 
     const [collapsemenu, setCollapsemenu] = useState(false);
+    const [selectOptions, setSelectOptions] = useState({});
 
     const changeMenu = () => {
         setCollapsemenu(!collapsemenu);
     }
 
-    const selectOptions = {
+    const getTag = () => {
+        fetch('http://localhost:8088/getTag')
+            .then(resp => resp.json())
+            .then(resp => {
+                let optionObject = {};
+                resp.map(item => {
+                    optionObject[item.name] = item.name;
+                })
+                setSelectOptions(optionObject);
+            })
+    }
+
+    const selectOption = {
         0: 'good',
         1: 'Bad',
         2: 'unknown'
@@ -36,46 +51,6 @@ export default function Table() {
         })
     }];
 
-
-    // useEffect(() => {
-    createTheme('solarized', {
-        text: {
-            //   primary: '#268bd2',
-            //   secondary: '#2aa198',
-        },
-        background: {
-            default: '#002b36',
-            primary: '#268bd2',
-            secondary: '#2aa198',
-        },
-        context: {
-            background: '#cb4b16',
-            text: '#FFFFFF',
-        },
-        divider: {
-            default: '#073642',
-        },
-        action: {
-            button: 'rgba(0,0,0,.54)',
-            hover: 'rgba(0,0,0,.08)',
-            disabled: 'rgba(0,0,0,.12)',
-        },
-    });
-
-    //   const conditionalRowStyles = [
-    //     {
-    //       when: row => row.calories < 300,
-    //       style: {
-    //         backgroundColor: 'green',
-    //         color: 'white',
-    //         '&:hover': {
-    //           cursor: 'pointer',
-    //         },
-    //       },
-    //     },
-    //   ];
-    // });
-
     const columns = [
         {
             text: 'Title',
@@ -90,13 +65,14 @@ export default function Table() {
             dataField: 'company',
             sort: true,
             width: '100px',
-            wrap: true
+            wrap: true,
+            filter: textFilter()
         },
         {
             text: 'Date Post',
             dataField: 'datePost',
             sort: true,
-            width: '120px',
+            width: '90px',
             formatter: data => <Moment format="YYYY/MM/DD">{data}</Moment>,
             filter: dateFilter()
         },
@@ -105,21 +81,32 @@ export default function Table() {
             dataField: 'dateExpired',
             sort: true,
             width: '120px',
-            formatter: data => (data ? <Moment format="YYYY/MM/DD">{data}</Moment> : '')
+            formatter: data => (data ? <Moment format="YYYY/MM/DD">{data}</Moment> : ''),
+            filter: dateFilter()
         },
         {
-            text: 'Salary',
+            text: 'Salary Min',
             dataField: 'description',
             sort: true,
             wrap: true,
-            formatter: data => makeSalary(data)
+            formatter: data => makeSalaryMin(data),
+            filter: numberFilter()
+        },
+        {
+            text: 'Salary Max',
+            dataField: 'description',
+            sort: true,
+            wrap: true,
+            formatter: data => makeSalaryMax(data),
+            filter: numberFilter()
         },
         {
             text: 'Description',
             dataField: 'description',
             sort: true,
             wrap: true,
-            formatter: data => makeDescription(data)
+            // formatter: data => makeDescription(data),
+            filter: textFilter()
         },
         {
             text: 'Link',
@@ -127,35 +114,60 @@ export default function Table() {
             sort: true,
             width: '120px',
             wrap: true,
-            formatter: data => <a target="_blank" href={data} style={{ width: "110px" }}>{data}</a>
+            formatter: data => <a target="_blank" href={data} style={{ width: "110px" }}>{data}</a>,
+            filter: textFilter()
         },
         {
             text: 'Tags',
             dataField: 'tagIds',
             sort: true,
             width: '120px',
-            wrap: true
+            wrap: true,
+            filter: multiSelectFilter({
+                options: selectOptions
+            })
         },
         {
             text: 'Address',
             dataField: 'address',
             sort: true,
             width: '120px',
-            wrap: true
+            wrap: true,
+            filter: textFilter()
         },
     ];
 
-    const makeSalary = (description) => {
+    const makeSalaryMin = (description) => {
         let myObject = JSON.parse(description);
-        if ('jobSalary' in myObject) {
-            const salaryArray = [parseInt(myObject.jobSalary), parseInt(myObject.salaryMin), parseInt(myObject.salaryMax)];
-            salaryArray.sort(function (a, b) {
-                return a - b;
-            });
-            return salaryArray[0] + '-' + salaryArray[2];
+        if ('salaryMin' in myObject) {
+            return parseInt(myObject.salaryMin);
         }
-        return myObject.salary;
+        let salary = myObject.salary.replace(/\$|,|\.|\+USD|usd|m vnd/g, '').trim();
+        var salaryArray = salary.split(' ');
+        if(salary.startsWith('From') && !isNaN(salaryArray[salaryArray.length - 1])) {
+            return parseInt(salaryArray[salaryArray.length - 1]);
+        } else if(!isNaN(salaryArray[0])) {
+            return parseInt(salaryArray[0]);
+        }
+        return 0;
     }
+
+    const makeSalaryMax = (description) => {
+        let myObject = JSON.parse(description);
+        if ('salaryMax' in myObject) {
+            return Math.max(parseInt(myObject.salaryMax), parseInt(myObject.jobSalary));
+        }
+        let salary = myObject.salary.replace(/\$|,|\.|\+|USD|usd|m vnd/g, '').trim();
+        var salaryArray = salary.split(' ');
+        if(salary.startsWith('From')) {
+            return -1;
+        }
+        if(salary.startsWith('Up') || !isNaN(salaryArray[salaryArray.length - 1])) {
+            return parseInt(salaryArray[salaryArray.length - 1]);
+        }
+        return -1;
+    }
+
 
     const makeDescription = (description) => {
         let result = '';
@@ -182,7 +194,14 @@ export default function Table() {
     const defaultSorted = [{
         dataField: 'time',
         order: 'desc'
-      }];
+    }];
+
+    const options = {
+        // pageStartIndex: 0,
+        sizePerPage: 50,
+        hideSizePerPage: true,
+        hidePageListOnlyOnePage: true
+      };
 
     return (
         <div className={collapsemenu ? 'sidebar-mini layout-fixed sidebar-collapse' : 'wrapper'} >
@@ -216,7 +235,9 @@ export default function Table() {
                                 </div>
                                 {/*  /.card-header  */}
                                 <div class="card-body">
-                                    <BootstrapTable bootstrap4 keyField='id' data={dataJob} columns={columns} defaultSorted={ defaultSorted }  filter={ filterFactory() } />
+                                    <BootstrapTable bootstrap4 keyField='id' data={dataJob} 
+                                    columns={columns} defaultSorted={defaultSorted} filter={filterFactory()} 
+                                    pagination={ paginationFactory(options) } />
                                     {/* <DataTable
                                         columns={columns}
                                         data={dataJob}
