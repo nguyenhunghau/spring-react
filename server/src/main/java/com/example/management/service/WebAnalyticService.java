@@ -62,6 +62,10 @@ public class WebAnalyticService {
         System.out.println("Hello");
     }
 
+    public List<TagEntity> getListTag() {
+        return (List<TagEntity>) tagRepository.findAll();
+    }
+
     public List<JobEntity> analyticsVietNamWork() {
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(2).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);

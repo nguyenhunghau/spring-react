@@ -1,4 +1,4 @@
-.rdt_TableBody > div:nth-of-type(odd) {
+tbody > tr:nth-of-type(odd) {
     background-color: rgba(0,0,0,.05);
 }
 
@@ -19,4 +19,24 @@
 
 .card-body {
     overflow-x: scroll;
+}
+/* .date-filter-input {
+    max-width: 90px;
+} */
+.salary {
+    min-width: 200px;
+}
+.link-job {
+    max-width: 150px;
+    word-wrap: break-word;
+}
+.react-bootstrap-table-pagination {
+    padding: 20px;
+    padding-bottom: 0px;
+}
+.react-bootstrap-table-pagination .dropdown{
+    
+}
+.react-bootstrap-table-pagination ul {
+    float: right;
 }

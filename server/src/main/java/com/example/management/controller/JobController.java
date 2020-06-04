@@ -5,7 +5,7 @@
  */
 package com.example.management.controller;
 
-import com.example.management.entity.JobEntity;
+import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author USER
  */
-@RestController()
+@RestController
 public class JobController {
     
     @Autowired
@@ -33,5 +33,10 @@ public class JobController {
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public ResponseEntity<List<JobEntity>> list() {
         return new ResponseEntity<>(webAnalyticService.findAll(), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/getListTag", method = RequestMethod.GET)
+    public ResponseEntity<List<TagEntity>> getListTag() {
+        return new ResponseEntity<>(webAnalyticService.getListTag(), HttpStatus.OK);
     }
 }
