@@ -6,8 +6,7 @@
 package com.example.management.repository;
 
 import com.example.management.entity.JobEntity;
-import com.example.management.entity.WebAnalyticEntity;
-import java.util.Date;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 /**
@@ -16,5 +15,6 @@ import org.springframework.data.repository.CrudRepository;
  */
 public interface JobRepository extends CrudRepository<JobEntity, Integer> {
     
-    public JobEntity findByDatePostAndTitle(Date datePost, String title);
+    @Query(value = "SELECT j FROM JobEntity j WHERE j.link =:link and j.title =:title")
+    public JobEntity findByLinkAndTitle(String link, String title);
 }

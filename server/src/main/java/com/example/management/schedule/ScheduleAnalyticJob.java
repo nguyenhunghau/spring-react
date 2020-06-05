@@ -16,8 +16,8 @@ public class ScheduleAnalyticJob {
     @Autowired
     private WebAnalyticService webAnalyticService;
     
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(cron = "0 0 * ? * *")
     public void schedule() {
-        webAnalyticService.testCron();
+        webAnalyticService.analytics();
     }
 }

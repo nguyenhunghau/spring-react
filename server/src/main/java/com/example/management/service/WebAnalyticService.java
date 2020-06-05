@@ -82,7 +82,7 @@ public class WebAnalyticService {
                 }
                 boolean isStopRun = false;
                 for (JobEntity entity : list) {
-                    JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
+                    JobEntity jobExist = jobRepository.findByLinkAndTitle(entity.getLink(), entity.getTitle());
                     if (jobExist != null) {
                         isStopRun = true;
                         break;
@@ -129,7 +129,7 @@ public class WebAnalyticService {
         boolean isStopRun = false;
         List<JobEntity> saveList = new ArrayList<>();
         for (JobEntity entity : list) {
-            JobEntity jobExist = jobRepository.findByDatePostAndTitle(entity.getDatePost(), entity.getTitle());
+            JobEntity jobExist = jobRepository.findByLinkAndTitle(entity.getLink(), entity.getTitle());
             if (jobExist != null) {
                 isStopRun = true;
                 break;

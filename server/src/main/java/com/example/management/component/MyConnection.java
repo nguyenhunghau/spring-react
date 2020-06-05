@@ -1,14 +1,11 @@
 package com.example.management.component;
 
-import com.mysql.cj.util.LogUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import org.apache.tomcat.util.ExceptionUtils;
 
 public class MyConnection {
 

@@ -2,6 +2,7 @@ package com.example.management;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +16,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
         exclude = {
             org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,}
 )
-//@EnableScheduling
+@EnableScheduling
 public class ManagementApplication {
+    
+    @Value("${origin.cors.list}")
+    private String cors;
 
     private static final Logger logger = LoggerFactory.getLogger(ManagementApplication.class);
 
@@ -32,7 +36,7 @@ public class ManagementApplication {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/*").allowedOrigins("http://localhost:3000");
+                registry.addMapping("/**");
             }
         };
     }

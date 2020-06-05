@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     , @NamedQuery(name = "JobEntity.findByTitle", query = "SELECT j FROM JobEntity j WHERE j.title = :title")
     , @NamedQuery(name = "JobEntity.findByCompany", query = "SELECT j FROM JobEntity j WHERE j.company = :company")
     , @NamedQuery(name = "JobEntity.findByRequireYear", query = "SELECT j FROM JobEntity j WHERE j.requireYear = :requireYear")
-    , @NamedQuery(name = "JobEntity.findByDatePostAndTitle", query = "SELECT j FROM JobEntity j WHERE j.datePost = :datePost and j.title = :title")
+    , @NamedQuery(name = "JobEntity.findByLinkAndTitle", query = "SELECT j FROM JobEntity j WHERE j.link = :link and j.title = :title")
     , @NamedQuery(name = "JobEntity.findByTagIds", query = "SELECT j FROM JobEntity j WHERE j.tagIds = :tagIds")
     , @NamedQuery(name = "JobEntity.findByAddress", query = "SELECT j FROM JobEntity j WHERE j.address = :address")
     , @NamedQuery(name = "JobEntity.findByCreated", query = "SELECT j FROM JobEntity j WHERE j.created = :created")})
