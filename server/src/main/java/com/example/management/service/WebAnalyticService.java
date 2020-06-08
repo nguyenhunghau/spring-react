@@ -164,17 +164,19 @@ public class WebAnalyticService {
 
     public List<JobEntity> findAll() {
         List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
+        List<TagEntity> tagList =  (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
             String[] tagIdArray = entity.getTagIds().split(",");
-            entity.setTagIds(makeTagNameJoiner(tagIdArray));
+            entity.setTagIds(makeTagNameJoiner(tagIdArray, tagList));
         }
         return jobList;
     }
 
-    private String makeTagNameJoiner(String[] tagIdArray) {
+    private String makeTagNameJoiner(String[] tagIdArray, List<TagEntity> tagList) {
         StringJoiner joiner = new StringJoiner(" ");
         for (String id : tagIdArray) {
-            Optional<TagEntity> entity = tagRepository.findById(Integer.parseInt(id));
+            Optional<TagEntity> entity = tagList.stream().filter(item -> item.getId() == Integer.parseInt(id))
+                    .findFirst();
             if (entity.isPresent()) {
                 joiner.add(entity.get().getName());
             }
