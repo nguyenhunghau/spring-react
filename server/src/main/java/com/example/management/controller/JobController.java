@@ -39,4 +39,9 @@ public class JobController {
     public ResponseEntity<List<TagEntity>> getListTag() {
         return new ResponseEntity<>(webAnalyticService.getListTag(), HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/test", method = RequestMethod.GET)
+    public ResponseEntity<String> test() {
+        return new ResponseEntity<>("abc", HttpStatus.OK);
+    }
 }

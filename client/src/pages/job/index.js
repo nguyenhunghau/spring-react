@@ -34,7 +34,7 @@ export default function Job() {
     }
 
     const getListTag = () => {
-        fetch('http://localhost:8088/getListTag')
+        fetch('http://54.255.250.93:8181/getListTag')
             .then(resp => resp.json())
             .then(resp => {
                 let optionObject = {};
@@ -46,7 +46,7 @@ export default function Job() {
     }
 
     const getListJob = () => {
-        fetch('http://localhost:8088/list')
+        fetch('http://54.255.250.93:8181/list')
             .then(resp => resp.json())
             .then(resp => {
                 let data = resp;
