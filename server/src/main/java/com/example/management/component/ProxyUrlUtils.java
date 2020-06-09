@@ -77,7 +77,7 @@ public class ProxyUrlUtils extends URLUtils {
         String address = element.select(queryMap.get("ADDRESS")).text();
         String[] dateArray = datePost.split(" ");
         Date date = dateArray.length > 1? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]): new Date();
-        return new JobEntity(0, title, company, requireYear, date, null, description, link, tag, address, null);
+        return new JobEntity(0, title, company, requireYear, date, null, description, link, tag, address, new Date());
     }
     
     private String makeDescription(Element element, String[] descriptionQueryArray) {

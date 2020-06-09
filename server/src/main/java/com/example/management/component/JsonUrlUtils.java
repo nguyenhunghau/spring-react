@@ -54,7 +54,7 @@ public class JsonUrlUtils extends URLUtils {
                 String address = makeDataFromJsonArray(document, makeQueryChecker(queryMap, "ADDRESS", i));
                 int publishDate = JsonPath.read(document, makeQueryChecker(queryMap, "DATE_POST", i));
                 int expiredDate = JsonPath.read(document, makeQueryChecker(queryMap, "DATE_EXPIRED", i));
-                resultList.add(new JobEntity(0, title, company, "", makeDatePost(publishDate), makeDatePost(expiredDate), description, link, tags, address, null));
+                resultList.add(new JobEntity(0, title, company, "", makeDatePost(publishDate), makeDatePost(expiredDate), description, link, tags, address, new Date()));
             }
         } catch (InvalidJsonException ex) {
             Logger.getLogger(JsonUrlUtils.class.getName()).log(Level.SEVERE, null, ex);

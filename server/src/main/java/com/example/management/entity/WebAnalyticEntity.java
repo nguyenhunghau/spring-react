@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author USER
  */
 @Entity
-@Table(name = "web_analytic")
+@Table(name = "WEB_ANALYTIC")
 @XmlRootElement
 //@NamedQueries({
 //    @NamedQuery(name = "WebAnalytic.findAll", query = "SELECT w FROM WebAnalytic w")
