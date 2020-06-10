@@ -5,17 +5,15 @@
             <PatternLayout
                 pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
         </Console>
-        
-        <!--<property name="LOGS" value="/var/log" />-->
  
         <RollingFile name="RollingFile"
-                     filePattern="/var/log/$${date:yyyy-MM}/spring-boot-logger-log4j2-%d{-dd-MMMM-yyyy}-%i.log.gz">
+            filePattern="/var/logs/$${date:yyyy-MM}/job-log4j2-%d{dd-MM-yyyy}-%i.log">
             <PatternLayout>
                 <pattern>%d %p %C{1.} [%t] %m%n</pattern>
             </PatternLayout>
             <Policies>
                 <!-- rollover on startup, daily and when the file reaches 
-                10 MegaBytes -->
+                    10 MegaBytes -->
                 <OnStartupTriggeringPolicy />
                 <SizeBasedTriggeringPolicy
                     size="10 MB" />
@@ -26,18 +24,13 @@
  
     <Loggers>
         <!-- LOG everything at INFO level -->
-        <!--        <Root level="info">
+        <Root level="info">
             <AppenderRef ref="Console" />
             <AppenderRef ref="RollingFile" />
-        </Root>-->
+        </Root>
  
         <!-- LOG "com.baeldung*" at TRACE level -->
-        <Logger name="com.example.management" level="info">
-            <AppenderRef ref="Console" />
-        </Logger>
-        <Root level="error">
-            <AppenderRef ref="Console"/>
-        </Root>
+        <!--<Logger name="com.example.management" level="trace"></Logger>-->
     </Loggers>
  
 </Configuration>

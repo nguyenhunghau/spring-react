@@ -1,7 +1,5 @@
 package com.example.management;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,16 +16,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 )
 @EnableScheduling
 public class ManagementApplication {
-    
+
     @Value("${origin.cors.list}")
     private String cors;
 
-    private static final Logger logger = LoggerFactory.getLogger(ManagementApplication.class);
-
     public static void main(String[] args) {
-        logger.info("this is a info message");
-        logger.warn("this is a warn message");
-        logger.error("this is a error message");
         SpringApplication.run(ManagementApplication.class, args);
     }
 
