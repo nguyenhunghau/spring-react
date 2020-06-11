@@ -12,6 +12,7 @@ services:
     working_dir: /server
     volumes:
       - ./server/target:/mnt
+      - ./server/log:/var/logs
     networks:
       - client
       

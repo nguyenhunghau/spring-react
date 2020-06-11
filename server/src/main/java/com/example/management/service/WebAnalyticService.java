@@ -2,6 +2,7 @@ package com.example.management.service;
 
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
+import com.example.management.controller.JobController;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
@@ -16,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,16 +51,14 @@ public class WebAnalyticService {
 
     @Value("${data.vietnamwork}")
     private String bodyAPI;
+    
+    private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
 
     public List<JobEntity> analytics() {
         List<JobEntity> resultList = new ArrayList<>();
         resultList.addAll(analyticsVietNamWork());
         resultList.addAll(analyticsItViec());
         return resultList;
-    }
-
-    public void testCron() {
-        System.out.println("Hello");
     }
 
     public List<TagEntity> getListTag() {
@@ -98,7 +97,7 @@ public class WebAnalyticService {
             }
 
         } catch (UrlException ex) {
-            Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error when analytics data VietnamWork", ex);
         }
         return new ArrayList<>();
     }
@@ -114,7 +113,7 @@ public class WebAnalyticService {
             try {
                 resultList.addAll(analyticsUrl(webAnalyticEntity.getLink() + "?page=" + page++, selectorMap));
             } catch (UrlException ex) {
-                Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+                logger.error("Error when analytics data IT Viec", ex);
                 break;
             }
         }

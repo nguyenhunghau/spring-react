@@ -2,6 +2,7 @@ package com.example.management.component;
 
 import com.example.management.entity.JobEntity;
 import com.example.management.exception.UrlException;
+import com.example.management.service.WebAnalyticService;
 import com.google.gson.Gson;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidJsonException;
@@ -19,7 +20,7 @@ import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,6 +32,8 @@ public class JsonUrlUtils extends URLUtils {
 
     private static final String DOMAIN = "https://www.vietnamworks.com/";
 
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
+
     @Override
     public List<JobEntity> analyticsData(String url, Map<String, String> queryMap, String body) throws UrlException {
 
@@ -41,7 +44,7 @@ public class JsonUrlUtils extends URLUtils {
             String json = MyConnection.callPostMethod(url, body);
             System.out.println(json);
             Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
-            
+
             //Get number item
             int numberItem = JsonPath.read(document, "$.results[0].hits.length()");
             for (int i = 0; i < numberItem; i++) {
@@ -57,7 +60,7 @@ public class JsonUrlUtils extends URLUtils {
                 resultList.add(new JobEntity(0, title, company, "", makeDatePost(publishDate), makeDatePost(expiredDate), description, link, tags, address, new Date()));
             }
         } catch (InvalidJsonException ex) {
-            Logger.getLogger(JsonUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error when parse Json of JsonPath", ex);
         }
         return resultList;
     }
