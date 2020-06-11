@@ -2,17 +2,17 @@ import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
 import DataTable, { createTheme, Button } from 'react-data-table-component';
-// import dataJob from '../../list.json';
 import Moment from 'react-moment';
 import './style.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import 'bootstrap/dist/css/bootstrap.css';
+import {URL_TAG, URL_JOB} from '../../constants/path'
 
 export default function Job() {
 
-    const [collapsemenu, setCollapsemenu] = useState(localStorage['colapseMenu'] || false);
+    const [collapsemenu, setCollapsemenu] = useState((localStorage['colapseMenu'] === 'true') || false);
     const [tagList, setTagList] = useState({});
     const [dataJob, setDataJob] = useState([]);
 
@@ -34,7 +34,7 @@ export default function Job() {
     }
 
     const getListTag = () => {
-        fetch('http://54.255.250.93:8181/getListTag')
+        fetch(URL_TAG)
             .then(resp => resp.json())
             .then(resp => {
                 let optionObject = {};
@@ -46,7 +46,7 @@ export default function Job() {
     }
 
     const getListJob = () => {
-        fetch('http://54.255.250.93:8181/list')
+        fetch(URL_JOB)
             .then(resp => resp.json())
             .then(resp => {
                 let data = resp;
