@@ -1,7 +1,9 @@
 package com.example.management.controller;
 
+import com.example.management.component.EmailUtils;
 import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,16 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class JobController {
-    
+
     @Autowired
     private WebAnalyticService webAnalyticService;
+
+    @Autowired
+    private EmailUtils emailUtils;
+
     private static final Logger logger = LoggerFactory.getLogger(JobController.class);
-    
+
     @RequestMapping(value = "/getListJob", method = RequestMethod.GET)
     public ResponseEntity<List<JobEntity>> index() {
         return new ResponseEntity<>(webAnalyticService.analytics(), HttpStatus.OK);
     }
-    
+
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public ResponseEntity<List<JobEntity>> list() {
         return new ResponseEntity<>(webAnalyticService.findAll(), HttpStatus.OK);
@@ -37,10 +43,16 @@ public class JobController {
     public ResponseEntity<List<TagEntity>> getListTag() {
         return new ResponseEntity<>(webAnalyticService.getListTag(), HttpStatus.OK);
     }
-    
-    @RequestMapping(value = "/test", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
     public ResponseEntity<String> test() {
-        logger.info("da run tét API");
+        emailUtils.sendMail(
+                "Test Send Email",
+                "Hello SendGrid",
+                Collections.singletonList("nguyenhunghau.us@gmail.com"),
+                null,
+                null
+        );
         return new ResponseEntity<>("abc", HttpStatus.OK);
     }
 }
