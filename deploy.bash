@@ -10,7 +10,7 @@ echo "Step1: Finish create jar file"
 mv target/*.jar target/app.jar &&
 cd .. &&
 mkdir deploy/server/target &&
-cp -v server/target/app.jar deploy/server/target/ && cp -v server/application.properties deploy/server/target/ && cp -v server/Dockerfile deploy/server/
+cp -v server/target/app.jar deploy/server/target/ && cp -v application.properties deploy/server/target/ && cp -v server/Dockerfile deploy/server/
 echo "Step2: Finish copy jar file to deploy folder"
 
 #Create folder for deploy client and build project
@@ -19,7 +19,7 @@ npm run build && cd .. && cp -R client/build deploy/client && cp -v client/Docke
 echo "Step3: Finish make data local"
 
 #Deploy code to server
-rsync -avzhe "ssh -i /mnt/ec2-sin.pem" deploy/ ec2-user@54.255.250.93:/home/ec2-user/
+(rsync -avzhe "ssh -i /mnt/ec2-sin.pem" deploy/ ec2-user@54.255.250.93:/home/ec2-user/) || exit 1
 echo "Step4: Finish upload file to server"
 
 #Connect to server using ssh and start docker-compose
