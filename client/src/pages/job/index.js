@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
-import DataTable, { createTheme, Button } from 'react-data-table-component';
 import Moment from 'react-moment';
 import './style.css';
 import BootstrapTable from 'react-bootstrap-table-next';
