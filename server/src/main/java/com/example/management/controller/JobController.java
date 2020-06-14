@@ -5,7 +5,10 @@ import com.example.management.component.EmailUtils;
 import com.example.management.dto.JobCompanyDTO;
 import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
-import java.util.Collections;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -49,8 +52,11 @@ public class JobController {
     }
     
     @RequestMapping(value = "/getListCompanyJob", method = RequestMethod.GET)
-    public ResponseEntity<List<JobCompanyDTO>> getListCompanyJob() {
-        return new ResponseEntity<>(webAnalyticService.findJobListByCompany(), HttpStatus.OK);
+    public ResponseEntity<String> getListCompanyJob() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+    String dtoAsString = objectMapper.writeValueAsString(webAnalyticService.findJobListByCompany());
+        return new ResponseEntity<>(dtoAsString, HttpStatus.OK);
     }
 
 //    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
