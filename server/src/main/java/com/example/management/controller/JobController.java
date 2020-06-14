@@ -7,6 +7,7 @@ import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class JobController {
     private static final Logger logger = LoggerFactory.getLogger(JobController.class);
 
     @RequestMapping(value = "/getListJob", method = RequestMethod.GET)
-    public ResponseEntity<List<JobEntity>> index() {
+    public ResponseEntity<Map<String, Integer>> index() {
         return new ResponseEntity<>(webAnalyticService.analytics(), HttpStatus.OK);
     }
 

@@ -1,5 +1,6 @@
 package com.example.management.service;
 
+import com.example.management.component.EmailUtils;
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
 import com.example.management.dto.JobCompanyDTO;
@@ -14,6 +15,7 @@ import com.example.management.repository.TagRepository;
 import com.example.management.repository.WebAnalyticRepository;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,11 +57,11 @@ public class WebAnalyticService {
     
     private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
 
-    public List<JobEntity> analytics() {
-        List<JobEntity> resultList = new ArrayList<>();
-        resultList.addAll(analyticsVietNamWork());
-        resultList.addAll(analyticsItViec());
-        return resultList;
+    public Map<String, Integer> analytics() {
+        Map<String, Integer> resultMap = new HashMap<>();
+        resultMap.put("itviec", analyticsItViec().size());
+        resultMap.put("vnwork", analyticsVietNamWork().size());
+        return resultMap;
     }
 
     public List<TagEntity> getListTag() {
@@ -67,6 +69,7 @@ public class WebAnalyticService {
     }
 
     public List<JobEntity> analyticsVietNamWork() {
+        List<JobEntity> resultList = new ArrayList<>();
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(2).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
@@ -78,7 +81,7 @@ public class WebAnalyticService {
                 String body = bodyAPI.replace("{item}", String.valueOf(page++));
                 List<JobEntity> list = jsonUrlUtils.analyticsData(webAnalyticEntity.getLink(), selectorMap, body);
                 if (list.isEmpty()) {
-                    return saveList;
+                    return resultList;
                 }
                 boolean isStopRun = false;
                 for (JobEntity entity : list) {
@@ -92,8 +95,9 @@ public class WebAnalyticService {
                     saveList.add(entity);
                 }
                 jobRepository.saveAll(saveList);
+                resultList.addAll(saveList);
                 if (isStopRun) {
-                    return saveList;
+                    return resultList;
                 }
             }
 
@@ -143,7 +147,7 @@ public class WebAnalyticService {
         if (isStopRun) {
             throw new UrlException("Found all new jobs");
         }
-        return list;
+        return saveList;
     }
 
     private String makeTagIdJoiner(String tagNames) {

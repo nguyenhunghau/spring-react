@@ -1,5 +1,7 @@
 package com.example.management.component;
 
+//<editor-fold defaultstate="collapsed" desc="IMPORT">
+import com.example.management.service.WebAnalyticService;
 import com.sendgrid.Content;
 import com.sendgrid.Email;
 import com.sendgrid.Mail;
@@ -10,8 +12,11 @@ import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import java.io.IOException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+//</editor-fold>
 
 /**
  *
@@ -20,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailUtils {
     
-    private static final String CONTENT_TYPE_TEXT_PLAIN = "text/plain";
+   private static final String CONTENT_TYPE_TEXT_PLAIN = "text/html";
 
    private static final String KEY_X_MOCK = "X-Mock";
 
@@ -34,6 +39,15 @@ public class EmailUtils {
 
    @Value("${send_grid.from_name}")
    private String sendGridFromName;
+   
+   private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
+   
+   //<editor-fold defaultstate="collapsed" desc="SEND MAIL AFTER FINISH ANALYTIS JOB">
+   public void sendMailInfoAnalystJob(String subject, String content, List<String> sendToEmails, List<String> ccEmails, List<String> bccEmails) {
+       Mail mail = buildMailToSend(subject, content, sendToEmails, ccEmails, bccEmails);
+       send(mail);
+   }
+//</editor-fold>
 
    public void sendMail(String subject, String content, List<String> sendToEmails, List<String> ccEmails, List<String> bccEmails) {
        Mail mail = buildMailToSend(subject, content, sendToEmails, ccEmails, bccEmails);
@@ -51,9 +65,8 @@ public class EmailUtils {
            request.setBody(mail.build());
            Response response = sg.api(request);
            System.out.println(response.getStatusCode());
-           System.out.println(response.getBody());
        } catch (IOException ex) {
-           ex.printStackTrace();
+           logger.error("Error sent mail with subject " + mail.getSubject(), ex);
        }
    }
 
@@ -72,11 +85,13 @@ public class EmailUtils {
 
        //Add sendToEmails
        if (sendToEmails != null) {
-           for (String email : sendToEmails) {
+           sendToEmails.stream().map((email) -> {
                Email to = new Email();
                to.setEmail(email);
+               return to;
+           }).forEachOrdered((to) -> {
                personalization.addTo(to);
-           }
+           });
        }
 
        //Add ccEmail
