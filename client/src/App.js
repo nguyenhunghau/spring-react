@@ -7,6 +7,7 @@ import Widgets from './pages/widgets/index';
 import Validation from './pages/form/validation';
 import Table from './pages/form/table';
 import Job  from './pages/job/index';
+import Company from './pages/job/company'
 
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
@@ -22,6 +23,7 @@ class App extends React.Component {
               <Route exact path="/widgets" component={Widgets} />
               <Route exact path="/validation" component={Validation} />
               <Route exact path="/table" component={Table} />
+              <Route exact path="/company" component={Company} />
             </Switch>
           </Router>
         </div>
