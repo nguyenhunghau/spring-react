@@ -2,7 +2,7 @@ package com.example.management.service;
 
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
-import com.example.management.controller.JobController;
+import com.example.management.dto.JobCompanyDTO;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
@@ -13,6 +13,7 @@ import com.example.management.repository.QueryCheckerRepository;
 import com.example.management.repository.TagRepository;
 import com.example.management.repository.WebAnalyticRepository;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -181,6 +182,24 @@ public class WebAnalyticService {
             }
         }
         return joiner.toString();
+    }
+    
+    public List<JobCompanyDTO> findJobListByCompany() {
+        List<JobCompanyDTO> resultList = new ArrayList<>();
+        List<JobEntity> list = (List<JobEntity>)jobRepository.findAll();
+        list.sort(Comparator.comparing(JobEntity::getCompany));
+        String company = "";
+        List<JobEntity> companyList = new ArrayList<>();
+        for(JobEntity entity: list) {
+            if(!company.isEmpty() && !company.equals(entity.getCompany())) {
+                resultList.add(new JobCompanyDTO(company, companyList));
+                companyList.clear();
+            }
+            companyList.add(entity);
+            company = entity.getCompany();
+        }
+        resultList.add(new JobCompanyDTO(company, companyList));
+        return resultList;
     }
 
 }

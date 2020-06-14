@@ -1,6 +1,8 @@
 package com.example.management.controller;
 
+//<editor-fold defaultstate="collapsed" desc="IMPORT">
 import com.example.management.component.EmailUtils;
+import com.example.management.dto.JobCompanyDTO;
 import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
 import java.util.Collections;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+//</editor-fold>
 
 /**
  *
@@ -43,16 +46,21 @@ public class JobController {
     public ResponseEntity<List<TagEntity>> getListTag() {
         return new ResponseEntity<>(webAnalyticService.getListTag(), HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
-    public ResponseEntity<String> test() {
-        emailUtils.sendMail(
-                "Test Send Email",
-                "Hello SendGrid",
-                Collections.singletonList("nguyenhunghau.us@gmail.com"),
-                null,
-                null
-        );
-        return new ResponseEntity<>("abc", HttpStatus.OK);
+    
+    @RequestMapping(value = "/getListCompanyJob", method = RequestMethod.GET)
+    public ResponseEntity<List<JobCompanyDTO>> getListCompanyJob() {
+        return new ResponseEntity<>(webAnalyticService.findJobListByCompany(), HttpStatus.OK);
     }
+
+//    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
+//    public ResponseEntity<String> test() {
+//        emailUtils.sendMail(
+//                "Test Send Email",
+//                "Hello SendGrid",
+//                Collections.singletonList("nguyenhunghau.us@gmail.com"),
+//                null,
+//                null
+//        );
+//        return new ResponseEntity<>("abc", HttpStatus.OK);
+//    }
 }
