@@ -25,7 +25,7 @@ public class MenuService {
         
         List<MenuDTO> resultList = new ArrayList<>();
         resultList.add(new MenuDTO("DashBoard", "", "nav-icon fas fa-tachometer-alt", childMenuDB));
-        resultList.add(new MenuDTO("Widgets", "widgets", "nav-icon fas fa-tachometer-alt", null));
+        resultList.add(new MenuDTO("Good Company", "company", "nav-icon fas fa-tachometer-alt", null));
         return resultList;
     }
 }

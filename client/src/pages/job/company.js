@@ -23,16 +23,20 @@ export default function Company() {
 
     useEffect(() => {
         getListCompany();
-        // wrap(document.querySelector(".card-pagination"), 'react-bootstrap-table-pagination');
+        wrap(document.querySelector(".card-pagination"), 'react-bootstrap-table-pagination');
     }, []);
 
+    const wrap = (node, tag) => {
+        node.parentNode.insertBefore(document.getElementsByClassName(tag)[0], node);
+        node.previousElementSibling.appendChild(node);
+    }
+
     const getListCompany = () => {
-        // fetch(URL_COMPANY)
-        //     .then(resp => resp.json())
-        //     .then(companyList => {
-                let data = companyListJson;
+        fetch(URL_COMPANY)
+            .then(resp => resp.json())
+            .then(companyListJson => {
                 let resultJobList = [];
-                data.map(item => {
+                companyListJson.map(item => {
                     let avrSalaymin = 0, avgSalaryMax = 0;
                     let jobList = item.jobList.filter(job => makeSalaryMin(job['description']) >= 1000);
                     if(jobList.length === 0) {
@@ -51,8 +55,14 @@ export default function Company() {
                 });
 
                 setCompanyList(resultJobList);
-    //         })
+            })
     }
+
+    const customTotal = (from, to, size) => (
+        <span className="react-bootstrap-table-pagination-total">
+            Showing { from} to { to} of { size} Results
+        </span>
+    );
 
     const options = {
         paginationSize: 4,
@@ -60,7 +70,7 @@ export default function Company() {
         // sizePerPage: 50,
         hidePageListOnlyOnePage: true,
         showTotal: true,
-        // paginationTotalRenderer: customTotal,
+        paginationTotalRenderer: customTotal,
         sizePerPageList: [{
             text: '30', value: 30
         }, {
@@ -71,12 +81,6 @@ export default function Company() {
             text: 'All', value: companyList.length
         }]
     };
-
-    const customTotal = (from, to, size) => (
-        <span className="react-bootstrap-table-pagination-total">
-            Showing { from} to { to} of { size} Results
-        </span>
-    );
 
     const defaultSorted = [{
         dataField: 'salaryMax',
