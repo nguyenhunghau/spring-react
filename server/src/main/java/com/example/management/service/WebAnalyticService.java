@@ -1,6 +1,5 @@
 package com.example.management.service;
 
-import com.example.management.component.EmailUtils;
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
 import com.example.management.dto.JobCompanyDTO;
@@ -14,11 +13,14 @@ import com.example.management.repository.QueryCheckerRepository;
 import com.example.management.repository.TagRepository;
 import com.example.management.repository.WebAnalyticRepository;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -193,17 +195,26 @@ public class WebAnalyticService {
         List<JobEntity> list = (List<JobEntity>)jobRepository.findAll();
         list.sort(Comparator.comparing(JobEntity::getCompany));
         String company = "";
-        List<JobEntity> companyList = new ArrayList<>();
+        List<JobEntity> jobCompanyList = new ArrayList<>();
+        List<TagEntity> tagEntityList =(List<TagEntity>)tagRepository.findAll();
         for(JobEntity entity: list) {
             if(!company.isEmpty() && !company.equals(entity.getCompany())) {
-                resultList.add(new JobCompanyDTO(company, companyList));
-                companyList.clear();
+                resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
+                jobCompanyList.clear();
             }
-            companyList.add(entity);
+            jobCompanyList.add(entity);
             company = entity.getCompany();
         }
-        resultList.add(new JobCompanyDTO(company, companyList));
+        resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
         return resultList;
     }
 
+    private String makeCompanyTags(List<JobEntity> jobCompanyList, List<TagEntity> tagEntityList) {
+        Set<String> tagSet = new HashSet<>();
+        for(JobEntity job: jobCompanyList) {
+            tagSet.addAll(new HashSet<>(Arrays.asList(job.getTagIds().split(","))));
+        }
+        return makeTagNameJoiner(tagSet.toArray(new String[tagSet.size()]), tagEntityList);
+    }
+    
 }

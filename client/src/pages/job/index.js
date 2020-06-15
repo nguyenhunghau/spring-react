@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
-import DataTable, { createTheme, Button } from 'react-data-table-component';
 import Moment from 'react-moment';
 import './style.css';
 import BootstrapTable from 'react-bootstrap-table-next';
@@ -9,6 +8,7 @@ import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, mult
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import 'bootstrap/dist/css/bootstrap.css';
 import {URL_TAG, URL_JOB} from '../../constants/path'
+import {makeSalaryMin, makeSalaryMax} from '../../components/job-utils'
 
 export default function Job() {
 
@@ -153,38 +153,6 @@ export default function Job() {
             filter: textFilter()
         },
     ];
-
-    const makeSalaryMin = (description) => {
-        let myObject = JSON.parse(description);
-        if ('salaryMin' in myObject) {
-            return parseInt(myObject.salaryMin);
-        }
-        let salary = myObject.salary.replace(/\$|,|\.|\+USD|usd|m vnd/g, '').trim();
-        var salaryArray = salary.split(' ');
-        if (salary.startsWith('From') && !isNaN(salaryArray[salaryArray.length - 1])) {
-            return parseInt(salaryArray[salaryArray.length - 1]);
-        } else if (!isNaN(salaryArray[0])) {
-            return parseInt(salaryArray[0]);
-        }
-        return 0;
-    }
-
-    const makeSalaryMax = (description) => {
-        let myObject = JSON.parse(description);
-        if ('salaryMax' in myObject) {
-            return Math.max(parseInt(myObject.salaryMax), parseInt(myObject.jobSalary));
-        }
-        let salary = myObject.salary.replace(/\$|,|\.|\+|USD|usd|m vnd/g, '').trim();
-        var salaryArray = salary.split(' ');
-        if (salary.startsWith('From')) {
-            return -1;
-        }
-        if (salary.startsWith('Up') || !isNaN(salaryArray[salaryArray.length - 1])) {
-            return parseInt(salaryArray[salaryArray.length - 1]);
-        }
-        return -1;
-    }
-
 
     const makeDescription = (description) => {
         let result = '';

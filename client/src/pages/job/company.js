@@ -8,6 +8,8 @@ import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, mult
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import 'bootstrap/dist/css/bootstrap.css';
 import {URL_COMPANY} from '../../constants/path'
+import companyListJson from '../../list.json'
+import { makeSalaryMin, makeSalaryMax} from '../../components/job-utils'
 
 export default function Company() {
     const [collapsemenu, setCollapsemenu] = useState((localStorage['colapseMenu'] === 'true') || false);
@@ -25,26 +27,56 @@ export default function Company() {
     }, []);
 
     const getListCompany = () => {
-        fetch(URL_COMPANY)
-            .then(resp => resp.json())
-            .then(resp => {
-                let data = resp;
+        // fetch(URL_COMPANY)
+        //     .then(resp => resp.json())
+        //     .then(companyList => {
+                let data = companyListJson;
+                let resultJobList = [];
                 data.map(item => {
                     let avrSalaymin = 0, avgSalaryMax = 0;
-                    let jobList = item.jobList.filter(job => makeSalaryMin(job['description']) >= 1000)
-                    .map(job => {
-                        avrSalaymin+= makeSalaryMin(job['description']);
-                        avgSalaryMax+= makeSalaryMax(job['description']);
+                    let jobList = item.jobList.filter(job => makeSalaryMin(job['description']) >= 1000);
+                    if(jobList.length === 0) {
+                        return;
+                    }
+                    jobList.map(job => {
+                        avrSalaymin+= makeSalaryMin(job['description']) || 0;
+                        avgSalaryMax+= makeSalaryMax(job['description']) || 0;
                     });
                     
                     item['numJob'] = jobList.length;
-                    item['salaryMin'] = avrSalaymin / jobList.length;
-                    item['salaryMax'] = avgSalaryMax / jobList.length;
+                    item['salaryMin'] = Math.round(avrSalaymin / jobList.length);
+                    item['salaryMax'] = Math.round(avgSalaryMax / jobList.length);
+                    item['address'] = jobList[0]['address'];
+                    resultJobList.push(item);
                 });
 
-                setCompanyList(companyList);
-            })
+                setCompanyList(resultJobList);
+    //         })
     }
+
+    const options = {
+        paginationSize: 4,
+        pageStartIndex: 0,
+        // sizePerPage: 50,
+        hidePageListOnlyOnePage: true,
+        showTotal: true,
+        // paginationTotalRenderer: customTotal,
+        sizePerPageList: [{
+            text: '30', value: 30
+        }, {
+            text: '50', value: 50
+        }, {
+            text: '100', value: 100
+        }, {
+            text: 'All', value: companyList.length
+        }]
+    };
+
+    const customTotal = (from, to, size) => (
+        <span className="react-bootstrap-table-pagination-total">
+            Showing { from} to { to} of { size} Results
+        </span>
+    );
 
     const defaultSorted = [{
         dataField: 'salaryMax',
@@ -79,6 +111,12 @@ export default function Company() {
         {
             text: 'Tag',
             dataField: 'tag',
+            sort: true,
+            filter: textFilter()
+        },
+        {
+            text: 'Address',
+            dataField: 'address',
             sort: true,
             filter: textFilter()
         }

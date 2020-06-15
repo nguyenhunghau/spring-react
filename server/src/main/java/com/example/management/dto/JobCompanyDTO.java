@@ -16,11 +16,12 @@ import java.util.List;
 public class JobCompanyDTO {
     
     private String company;
+    private String tags;
     private List<JobEntity> jobList;
 
-    public JobCompanyDTO(String company, List<JobEntity> jobList) {
+    public JobCompanyDTO(String company, String tags, List<JobEntity> jobList) {
         this.company = company;
+        this.tags = tags;
         this.jobList = new ArrayList<>(jobList);
     }
-    
 }
