@@ -56,12 +56,12 @@ public class WebAnalyticService {
 
     @Value("${data.vietnamwork}")
     private String bodyAPI;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
 
     public Map<String, Integer> analytics() {
         Map<String, Integer> resultMap = new HashMap<>();
-        resultMap.put("itviec", analyticsItViec().size());
+        resultMap.put("itviec", analyticsItViec());
         resultMap.put("vnwork", analyticsVietNamWork().size());
         return resultMap;
     }
@@ -109,8 +109,8 @@ public class WebAnalyticService {
         return new ArrayList<>();
     }
 
-    public List<JobEntity> analyticsItViec() {
-        List<JobEntity> resultList = new ArrayList<>();
+    public int analyticsItViec() {
+        int result = 0;
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(1).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(1);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
@@ -118,19 +118,20 @@ public class WebAnalyticService {
         int page = 1;
         while (true) {
             try {
-                resultList.addAll(analyticsUrl(webAnalyticEntity.getLink() + "?page=" + page++, selectorMap));
+                result += analyticsUrl(webAnalyticEntity.getLink() + "?page=" + page++, selectorMap).size();
             } catch (UrlException ex) {
                 logger.error("Error when analytics data IT Viec", ex);
+                result += Integer.parseInt(ex.getMessage().split("\n")[1]);
                 break;
             }
         }
-        return resultList;
+        return result;
     }
 
     private List<JobEntity> analyticsUrl(String url, Map<String, String> selectorMap) throws UrlException {
         List<JobEntity> list = urlUtils.analyticsData(url, selectorMap, "");
         if (list.isEmpty()) {
-            throw new UrlException("Can find any Job");
+            throw new UrlException("Can find any Job\n0");
         }
         boolean isStopRun = false;
         List<JobEntity> saveList = new ArrayList<>();
@@ -147,7 +148,7 @@ public class WebAnalyticService {
         System.out.println("Size of list " + saveList.size());
         jobRepository.saveAll(saveList);
         if (isStopRun) {
-            throw new UrlException("Found all new jobs");
+            throw new UrlException("Found all new jobs\n" + saveList.size());
         }
         return saveList;
     }
@@ -170,7 +171,7 @@ public class WebAnalyticService {
 
     public List<JobEntity> findAll() {
         List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
-        List<TagEntity> tagList =  (List<TagEntity>) tagRepository.findAll();
+        List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
             String[] tagIdArray = entity.getTagIds().split(",");
             entity.setTagIds(makeTagNameJoiner(tagIdArray, tagList));
@@ -189,16 +190,16 @@ public class WebAnalyticService {
         }
         return joiner.toString();
     }
-    
+
     public List<JobCompanyDTO> findJobListByCompany() {
         List<JobCompanyDTO> resultList = new ArrayList<>();
-        List<JobEntity> list = (List<JobEntity>)jobRepository.findAll();
+        List<JobEntity> list = (List<JobEntity>) jobRepository.findAll();
         list.sort(Comparator.comparing(JobEntity::getCompany));
         String company = "";
         List<JobEntity> jobCompanyList = new ArrayList<>();
-        List<TagEntity> tagEntityList =(List<TagEntity>)tagRepository.findAll();
-        for(JobEntity entity: list) {
-            if(!company.isEmpty() && !company.equals(entity.getCompany())) {
+        List<TagEntity> tagEntityList = (List<TagEntity>) tagRepository.findAll();
+        for (JobEntity entity : list) {
+            if (!company.isEmpty() && !company.equals(entity.getCompany())) {
                 resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
                 jobCompanyList.clear();
             }
@@ -211,10 +212,10 @@ public class WebAnalyticService {
 
     private String makeCompanyTags(List<JobEntity> jobCompanyList, List<TagEntity> tagEntityList) {
         Set<String> tagSet = new HashSet<>();
-        for(JobEntity job: jobCompanyList) {
+        for (JobEntity job : jobCompanyList) {
             tagSet.addAll(new HashSet<>(Arrays.asList(job.getTagIds().split(","))));
         }
         return makeTagNameJoiner(tagSet.toArray(new String[tagSet.size()]), tagEntityList);
     }
-    
+
 }

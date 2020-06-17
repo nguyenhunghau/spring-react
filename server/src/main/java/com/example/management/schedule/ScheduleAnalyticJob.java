@@ -24,7 +24,7 @@ public class ScheduleAnalyticJob {
     @Autowired
     private EmailUtils emailUtils;
     
-    @Scheduled(cron = "0 0 * ? * *")
+    @Scheduled(cron = "0 0 7-20 ? * *")
     public void schedule() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String timeStart = format.format(new Date());
