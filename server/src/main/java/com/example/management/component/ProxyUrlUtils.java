@@ -142,4 +142,24 @@ public class ProxyUrlUtils extends URLUtils {
         return cookieMap;
     }
 
+    public JobEntity analyticsDetailData(String url, Map<String, String> queryMap, String data) throws UrlException {
+        try {
+            URL urlObject = new URL(url);
+            Response res = connectURL(url, getCookieMap(url), true);
+            String html = res.parse().html();
+            if (res.statusCode() != 200 || html.isEmpty()) {
+                throw new UrlException("Fail get html content");
+            }
+            Document document = Jsoup.parse(html);
+            Elements elements = document.select(queryMap.get("ITEM"));//get list item result
+
+            for (Element element : elements) {
+                resultList.add(createJobEntity(url, element, queryMap));
+            }
+        } catch (IOException ex) {
+//          Logger.getLogger(ProxyUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
+            throw new UrlException("Fail get html content");
+        }
+    }
+
 }
