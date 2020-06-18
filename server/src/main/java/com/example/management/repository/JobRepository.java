@@ -19,5 +19,6 @@ public interface JobRepository extends CrudRepository<JobEntity, Integer> {
     @Query(value = "SELECT j FROM JobEntity j WHERE j.link =:link and j.title =:title")
     public JobEntity findByLinkAndTitle(String link, String title);
 
-    public List<JobEntity> findJobNotAnalyticsDetail(int i);
+    @Query(value = "SELECT j FROM JobEntity j WHERE j.requirement is null")
+    public List<JobEntity> findJobNotAnalyticsDetail();
 }

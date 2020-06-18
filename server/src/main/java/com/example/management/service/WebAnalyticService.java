@@ -55,7 +55,7 @@ public class WebAnalyticService {
 
     @Value("${data.vietnamwork}")
     private String bodyAPI;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
     //</editor-fold>
 
@@ -173,7 +173,7 @@ public class WebAnalyticService {
     //<editor-fold defaultstate="collapsed" desc="GET ALL">
     public List<JobEntity> findAll() {
         List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
-        List<TagEntity> tagList =  (List<TagEntity>) tagRepository.findAll();
+        List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
             String[] tagIdArray = entity.getTagIds().split(",");
             entity.setTagIds(makeTagNameJoiner(tagIdArray, tagList));
@@ -195,50 +195,62 @@ public class WebAnalyticService {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="GET JOB BY COMPANY">
-    public List<JobCompanyDTO> findJobListByCompany() {
-        List<JobCompanyDTO> resultList = new ArrayList<>();
-        List<JobEntity> list = (List<JobEntity>) jobRepository.findAll();
-        list.sort(Comparator.comparing(JobEntity::getCompany));
-        String company = "";
-        List<JobEntity> jobCompanyList = new ArrayList<>();
-        List<TagEntity> tagEntityList = (List<TagEntity>) tagRepository.findAll();
-        for (JobEntity entity : list) {
-            if (!company.isEmpty() && !company.equals(entity.getCompany())) {
-                resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
-                jobCompanyList.clear();
-            }
-            jobCompanyList.add(entity);
-            company = entity.getCompany();
-        }
-        resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
-        return resultList;
-    }
-
-    private String makeCompanyTags(List<JobEntity> jobCompanyList, List<TagEntity> tagEntityList) {
-        Set<String> tagSet = new HashSet<>();
-        for (JobEntity job : jobCompanyList) {
-            tagSet.addAll(new HashSet<>(Arrays.asList(job.getTagIds().split(","))));
-        }
-        return makeTagNameJoiner(tagSet.toArray(new String[tagSet.size()]), tagEntityList);
-    }
+//    public List<JobCompanyDTO> findJobListByCompany() {
+//        List<JobCompanyDTO> resultList = new ArrayList<>();
+//        List<JobEntity> list = (List<JobEntity>) jobRepository.findAll();
+//        list.sort(Comparator.comparing(JobEntity::getCompany));
+//        String company = "";
+//        List<JobEntity> jobCompanyList = new ArrayList<>();
+//        List<TagEntity> tagEntityList = (List<TagEntity>) tagRepository.findAll();
+//        for (JobEntity entity : list) {
+//            if (!company.isEmpty() && !company.equals(entity.getCompany())) {
+//                resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
+//                jobCompanyList.clear();
+//            }
+//            jobCompanyList.add(entity);
+//            company = entity.getCompany();
+//        }
+//        resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
+//        return resultList;
+//    }
+//
+//    private String makeCompanyTags(List<JobEntity> jobCompanyList, List<TagEntity> tagEntityList) {
+//        Set<String> tagSet = new HashSet<>();
+//        for (JobEntity job : jobCompanyList) {
+//            tagSet.addAll(new HashSet<>(Arrays.asList(job.getTagIds().split(","))));
+//        }
+//        return makeTagNameJoiner(tagSet.toArray(new String[tagSet.size()]), tagEntityList);
+//    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="ANALYTICS DETAIL URLS">
-    private void analyticsDetailItViec() {
-        List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(1);
-        Map<String, String> selectorMap = queryCheckerList.stream().collect(
-                Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
-        List<JobEntity> list = jobRepository.findJobNotAnalyticsDetail(1);
+    public void analyticsDetail() {
+        List<QueryCheckerEntity> queryCheckerITViecList = queryCheckerRepository.findActiveList(1);
+        List<QueryCheckerEntity> queryCheckerVNWorkList = queryCheckerRepository.findActiveList(2);
+
+        List<JobEntity> list = jobRepository.findJobNotAnalyticsDetail();
         for (JobEntity job : list) {
             JobEntity newEntity;
             try {
-                newEntity = urlUtils.analyticsDetailData(job.getLink(), selectorMap, "");
-                jobRepository.save(newEntity);
+                if (job.getLink().contains("itviec")) {
+                    newEntity = analyticsDetailItViec(job, queryCheckerITViecList);
+                    jobRepository.save(newEntity);
+                    break;
+                } else {
+//                    newEntity = analyticsDetailVNWork(job, queryCheckerITViecList);
+                }
+                
             } catch (UrlException ex) {
-                logger.error("Error when analytics detail data IT Viec " + job.getLink(), ex);
+                
             }
-            
         }
+    }
+
+    private JobEntity analyticsDetailItViec(JobEntity job, List<QueryCheckerEntity> queryCheckerList) throws UrlException {
+        Map<String, String> selectorMap = queryCheckerList.stream().collect(
+                Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
+
+        return urlUtils.analyticsDetailData(selectorMap, job);
     }
     //</editor-fold>
 
