@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  maven:
+    build: ./server
+    container_name: spring-boot
+    expose:
+      - 8181
+    ports:
+      - 8181:8088
+    restart: always
+    working_dir: /server
+    volumes:
+      - ./server/target:/mnt
+      - ./server/log:/var/logs
+    networks:
+      - client
+      
+  react:
+    build: ./client
+    container_name: react-js
+    restart: always
+    expose:
+      - 80
+    ports:
+      - 80:80
+    networks:
+      - client
+    links:
+      - maven
+    depends_on:
+      - maven
+  
+networks:
+  client:

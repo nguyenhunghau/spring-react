@@ -1,9 +1,8 @@
 package com.example.management.service;
 
-import com.example.management.component.EmailUtils;
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
-import com.example.management.controller.JobController;
+import com.example.management.dto.JobCompanyDTO;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
@@ -14,12 +13,15 @@ import com.example.management.repository.QueryCheckerRepository;
 import com.example.management.repository.TagRepository;
 import com.example.management.repository.WebAnalyticRepository;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
