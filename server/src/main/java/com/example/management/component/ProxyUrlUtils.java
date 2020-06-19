@@ -4,7 +4,6 @@ package com.example.management.component;
 import com.example.management.entity.JobEntity;
 import com.example.management.exception.UrlException;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -23,6 +22,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 //</editor-fold>
@@ -33,16 +33,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ProxyUrlUtils extends URLUtils {
-
+    
     @Value("${login.email}")
     private String email;
-
+    
     @Value("${login.password}")
     private String password;
-
+    
     @Value("${login.session}")
     private String sessionToken;
-
+    
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ProxyUrlUtils.class);
+    
     @Override
     public List<JobEntity> analyticsData(String url, Map<String, String> queryMap, String body) throws UrlException {
         List<JobEntity> resultList = new ArrayList<>();
@@ -62,13 +64,13 @@ public class ProxyUrlUtils extends URLUtils {
                 resultList.add(createJobEntity(url, element, queryMap));
             }
         } catch (IOException ex) {
-//          Logger.getLogger(ProxyUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.error("Error when analyst data of " + url, ex);
             throw new UrlException("Fail get html content");
         }
-
+        
         return resultList;
     }
-
+    
     private JobEntity createJobEntity(String mainUrl, Element element, Map<String, String> queryMap) throws UrlException {
         String title = element.select(queryMap.get("TITLE")).text();
         String company = element.select(queryMap.get("COMPANY")).attr("alt");
@@ -82,7 +84,7 @@ public class ProxyUrlUtils extends URLUtils {
         Date date = dateArray.length > 1 ? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]) : new Date();
         return new JobEntity(0, title, company, requireYear, date, null, description, link, tag, address, new Date());
     }
-
+    
     private String makeDescription(Element element, String[] descriptionQueryArray) {
         Map<String, String> desMap = new HashMap<>();
         for (String query : descriptionQueryArray) {
@@ -91,7 +93,7 @@ public class ProxyUrlUtils extends URLUtils {
         }
         return new Gson().toJson(desMap);
     }
-
+    
     private String makeFullUrl(String mainUrl, String link) throws UrlException {
         URL url;
         try {
@@ -102,7 +104,7 @@ public class ProxyUrlUtils extends URLUtils {
         }
         return url.getProtocol() + "://" + url.getHost() + link;
     }
-
+    
     public Response login(String csrf, String url, Map<String, String> cookieMap, boolean isFollowRedirect) {
         System.getProperties().put("proxySet", "true");
         System.getProperties().put("proxyHost", "host");
@@ -124,7 +126,7 @@ public class ProxyUrlUtils extends URLUtils {
         }
         return null;
     }
-
+    
     private Map<String, String> getCookieMap(String urlMain) throws UrlException, IOException {
 //        Response resp = connectURL(urlMain, new HashMap<String, String>(), false);
 //        Document doc = resp.parse();
@@ -142,7 +144,7 @@ public class ProxyUrlUtils extends URLUtils {
         cookieMap.put("_ITViec_session", sessionToken);
         return cookieMap;
     }
-
+    
     public JobEntity analyticsDetailData(Map<String, String> queryMap, JobEntity entity) throws UrlException {
         try {
             Response res = connectURL(entity.getLink(), getCookieMap(entity.getLink()), true);
@@ -159,16 +161,15 @@ public class ProxyUrlUtils extends URLUtils {
             String requirement = document.select(queryMap.get("REQUIREMENT")).text();
             
             object.addProperty("country", companyCountry);
-            object.addProperty("address", companyAddress);
             object.addProperty("size", companySize);
             entity.setRequirement(requirement);
             entity.setCompany(object.toString());
+            entity.setAddress(companyAddress);
             entity.setUpdated(new Date());
         } catch (IOException ex) {
-//          Logger.getLogger(ProxyUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
             throw new UrlException("Fail get html content of " + entity.getLink());
         }
         return entity;
     }
-
+    
 }
