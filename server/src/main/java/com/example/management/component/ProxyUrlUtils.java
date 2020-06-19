@@ -4,6 +4,9 @@ package com.example.management.component;
 import com.example.management.entity.JobEntity;
 import com.example.management.exception.UrlException;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,10 +39,10 @@ public class ProxyUrlUtils extends URLUtils {
 
     @Value("${login.password}")
     private String password;
-    
+
     @Value("${login.session}")
     private String sessionToken;
-    
+
     @Override
     public List<JobEntity> analyticsData(String url, Map<String, String> queryMap, String body) throws UrlException {
         List<JobEntity> resultList = new ArrayList<>();
@@ -76,10 +79,10 @@ public class ProxyUrlUtils extends URLUtils {
         String tag = element.select(queryMap.get("TAG")).text();
         String address = element.select(queryMap.get("ADDRESS")).text();
         String[] dateArray = datePost.split(" ");
-        Date date = dateArray.length > 1? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]): new Date();
+        Date date = dateArray.length > 1 ? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]) : new Date();
         return new JobEntity(0, title, company, requireYear, date, null, description, link, tag, address, new Date());
     }
-    
+
     private String makeDescription(Element element, String[] descriptionQueryArray) {
         Map<String, String> desMap = new HashMap<>();
         for (String query : descriptionQueryArray) {
@@ -122,8 +125,6 @@ public class ProxyUrlUtils extends URLUtils {
         return null;
     }
 
-    
-
     private Map<String, String> getCookieMap(String urlMain) throws UrlException, IOException {
 //        Response resp = connectURL(urlMain, new HashMap<String, String>(), false);
 //        Document doc = resp.parse();
@@ -142,24 +143,32 @@ public class ProxyUrlUtils extends URLUtils {
         return cookieMap;
     }
 
-    public JobEntity analyticsDetailData(String url, Map<String, String> queryMap, String data) throws UrlException {
+    public JobEntity analyticsDetailData(Map<String, String> queryMap, JobEntity entity) throws UrlException {
         try {
-            URL urlObject = new URL(url);
-            Response res = connectURL(url, getCookieMap(url), true);
+            Response res = connectURL(entity.getLink(), getCookieMap(entity.getLink()), true);
             String html = res.parse().html();
             if (res.statusCode() != 200 || html.isEmpty()) {
                 throw new UrlException("Fail get html content");
             }
             Document document = Jsoup.parse(html);
-            Elements elements = document.select(queryMap.get("ITEM"));//get list item result
-
-            for (Element element : elements) {
-                resultList.add(createJobEntity(url, element, queryMap));
-            }
+            //Query to select data
+            JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
+            String companySize = document.select(queryMap.get("COMPANY-SIZE")).text();
+            String companyCountry = document.select(queryMap.get("COMPANY-COUNTRY")).text();
+            String companyAddress = document.select(queryMap.get("COMPANY-ADDRESS")).text();
+            String requirement = document.select(queryMap.get("REQUIREMENT")).text();
+            
+            object.addProperty("country", companyCountry);
+            object.addProperty("address", companyAddress);
+            object.addProperty("size", companySize);
+            entity.setRequirement(requirement);
+            entity.setCompany(object.toString());
+            entity.setUpdated(new Date());
         } catch (IOException ex) {
 //          Logger.getLogger(ProxyUrlUtils.class.getName()).log(Level.SEVERE, null, ex);
-            throw new UrlException("Fail get html content");
+            throw new UrlException("Fail get html content of " + entity.getLink());
         }
+        return entity;
     }
 
 }
