@@ -30,3 +30,10 @@ export const makeSalaryMax = (description) => {
     }
     return -1;
 }
+
+export const collapseText = (text, numLetter = 100) => {
+    if(text.length < 50) {
+        return text;
+    }
+    return text.substring(0, numLetter) + '...';
+}

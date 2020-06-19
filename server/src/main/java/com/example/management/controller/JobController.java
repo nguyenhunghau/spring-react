@@ -58,6 +58,15 @@ public class JobController {
     String dtoAsString = objectMapper.writeValueAsString(webAnalyticService.findJobListByCompany());
         return new ResponseEntity<>(dtoAsString, HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/getListTagJob", method = RequestMethod.GET)
+    public ResponseEntity<String> getListTagJob() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
+    String dtoAsString = objectMapper.writeValueAsString(webAnalyticService.findJobListByTag());
+        return new ResponseEntity<>(dtoAsString, HttpStatus.OK);
+    }
+    
 
 //    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
 //    public ResponseEntity<String> test() {

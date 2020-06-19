@@ -3,6 +3,7 @@ package com.example.management.service;
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
 import com.example.management.dto.JobCompanyDTO;
+import com.example.management.dto.JobTagDTO;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
@@ -217,5 +218,17 @@ public class WebAnalyticService {
         }
         return makeTagNameJoiner(tagSet.toArray(new String[tagSet.size()]), tagEntityList);
     }
+    
+     public List<JobTagDTO> findJobListByTag() {
+        List<JobTagDTO> resultList = new ArrayList<>();
+        List<JobEntity> allJobList = (List<JobEntity>) jobRepository.findAll();
+        List<TagEntity> tagEntityList = (List<TagEntity>) tagRepository.findAll();
+        for(TagEntity tag: tagEntityList) {
+            List<JobEntity> jobList = allJobList.stream().filter(item -> Arrays.asList(item.getTagIds().split(","))
+                    .contains(tag.getId().toString())).collect(Collectors.toList());
+            resultList.add(new JobTagDTO(tag.getName(), jobList));
+        }
+        return resultList;
+     }
 
 }

@@ -8,7 +8,7 @@ import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, mult
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import 'bootstrap/dist/css/bootstrap.css';
 import {URL_TAG, URL_JOB} from '../../constants/path'
-import {makeSalaryMin, makeSalaryMax} from '../../components/job-utils'
+import {makeSalaryMin, makeSalaryMax, collapseText} from '../../components/job-utils'
 
 export default function Job() {
 
@@ -53,6 +53,7 @@ export default function Job() {
                 data.map(item => {
                     item['salaryMin'] = makeSalaryMin(item['description']);
                     item['salaryMax'] = makeSalaryMax(item['description']);
+                    item['descriptionMain'] = makeDescription(item['description']);
                 });
                 setDataJob(data);
             })
@@ -116,10 +117,13 @@ export default function Job() {
         },
         {
             text: 'Description',
-            dataField: 'description',
+            dataField: 'descriptionMain',
             sort: true,
             wrap: true,
-            formatter: data => makeDescription(data),
+            style: {
+                minWidth: '300px'
+            },
+            formatter: data => collapseText(data, 70),
             filter: textFilter()
         },
         {
@@ -127,7 +131,7 @@ export default function Job() {
             dataField: 'link',
             sort: true,
             classes: 'link-job',
-            formatter: data => <a target="_blank" href={data} style={{ width: "110px" }}>{data}</a>,
+            formatter: data => <a target="_blank" href={data} style={{ width: "110px" }}>{collapseText(data, 70)}</a>,
             filter: textFilter()
         },
         {
