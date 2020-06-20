@@ -256,32 +256,5 @@ public class WebAnalyticService {
         return urlUtils.analyticsDetailData(selectorMap, job);
     }
     //</editor-fold>
-
-    public List<JobCompanyDTO> findJobListByCompany() {
-        List<JobCompanyDTO> resultList = new ArrayList<>();
-        List<JobEntity> list = (List<JobEntity>) jobRepository.findAll();
-        list.sort(Comparator.comparing(JobEntity::getCompany));
-        String company = "";
-        List<JobEntity> jobCompanyList = new ArrayList<>();
-        List<TagEntity> tagEntityList = (List<TagEntity>) tagRepository.findAll();
-        for (JobEntity entity : list) {
-            if (!company.isEmpty() && !company.equals(entity.getCompany())) {
-                resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
-                jobCompanyList.clear();
-            }
-            jobCompanyList.add(entity);
-            company = entity.getCompany();
-        }
-        resultList.add(new JobCompanyDTO(company, makeCompanyTags(jobCompanyList, tagEntityList), jobCompanyList));
-        return resultList;
-    }
-
-    private String makeCompanyTags(List<JobEntity> jobCompanyList, List<TagEntity> tagEntityList) {
-        Set<String> tagSet = new HashSet<>();
-        for (JobEntity job : jobCompanyList) {
-            tagSet.addAll(new HashSet<>(Arrays.asList(job.getTagIds().split(","))));
-        }
-        return makeTagNameJoiner(tagSet.toArray(new String[tagSet.size()]), tagEntityList);
-    }
-
+    
 }

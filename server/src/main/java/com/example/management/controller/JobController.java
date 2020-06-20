@@ -56,17 +56,7 @@ public class JobController {
         webAnalyticService.analyticsDetail(10);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
-
-    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
-    public ResponseEntity<String> test() {
-        emailUtils.sendMail(
-                "Test Send Email",
-                "Hello SendGrid",
-                Collections.singletonList("nguyenhunghau.us@gmail.com"),
-                null,
-                null
-        );
-        return new ResponseEntity<>("abc", HttpStatus.OK);
+    
     @RequestMapping(value = "/getListCompanyJob", method = RequestMethod.GET)
     public ResponseEntity<String> getListCompanyJob() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
