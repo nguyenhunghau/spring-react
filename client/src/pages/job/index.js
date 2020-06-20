@@ -5,8 +5,8 @@ import Moment from 'react-moment';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import {URL_TAG, URL_JOB} from '../../constants/path'
-import {makeSalaryMin, makeSalaryMax, collapseText} from '../../components/job-utils'
+import { URL_TAG, URL_JOB } from '../../constants/path'
+import { makeSalaryMin, makeSalaryMax, collapseText } from '../../components/job-utils'
 
 export default function Job() {
 
@@ -58,6 +58,7 @@ export default function Job() {
                     item['companyName'] = company.Name
                     item['country'] = company.country;
                     item['members'] = company.size;
+
                 });
                 setDataJob(data);
             })
@@ -183,6 +184,9 @@ export default function Job() {
     ];
 
     const makeDescription = (description) => {
+        if(!description) {
+            return '';
+        }
         let result = '';
         let myObject = JSON.parse(description);
         if ('description' in myObject) {

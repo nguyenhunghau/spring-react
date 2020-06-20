@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
-import Moment from 'react-moment';
 import './style.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import 'bootstrap/dist/css/bootstrap.css';
 import {URL_COMPANY} from '../../constants/path'
-import companyListJson from '../../list.json'
 import { makeSalaryMin, makeSalaryMax} from '../../components/job-utils'
 
 export default function Company() {
@@ -46,12 +44,12 @@ export default function Company() {
                         avrSalaymin+= makeSalaryMin(job['description']) || 0;
                         avgSalaryMax+= makeSalaryMax(job['description']) || 0;
                     });
-                    
-                    item['numJob'] = jobList.length;
-                    item['salaryMin'] = Math.round(avrSalaymin / jobList.length);
-                    item['salaryMax'] =  Math.round(avgSalaryMax / jobList.length).toLocaleString();
-                    item['address'] = jobList[0]['address'];
-                    resultJobList.push(item);
+                    const company = JSON.parse(item['company']);
+                    company['numJob'] = jobList.length;
+                    company['salaryMin'] = Math.round(avrSalaymin / jobList.length);
+                    company['salaryMax'] =  Math.round(avgSalaryMax / jobList.length).toLocaleString();
+                    company['address'] = jobList[0]['address'];
+                    resultJobList.push(company);
                 });
 
                 setCompanyList(resultJobList);
@@ -67,7 +65,7 @@ export default function Company() {
     const options = {
         paginationSize: 4,
         pageStartIndex: 0,
-        // sizePerPage: 50,
+        sizePerPage: 50,
         hidePageListOnlyOnePage: true,
         showTotal: true,
         paginationTotalRenderer: customTotal,
@@ -90,7 +88,19 @@ export default function Company() {
     const columns = [
         {
             text: 'Company',
-            dataField: 'company',
+            dataField: 'Name',
+            sort: true,
+            filter: textFilter()
+        },
+        {
+            text: 'Size',
+            dataField: 'size',
+            sort: true,
+            filter: textFilter()
+        },
+        {
+            text: 'Country',
+            dataField: 'country',
             sort: true,
             filter: textFilter()
         },
@@ -104,12 +114,14 @@ export default function Company() {
             text: 'Salary min',
             dataField: 'salaryMin',
             sort: true,
+            formatter: (cell) => cell.toLocaleString(),
             filter: textFilter()
         },
         {
             text: 'Salary max',
             dataField: 'salaryMax',
             sort: true,
+            formatter: (cell) => cell.toLocaleString(),
             filter: textFilter()
         },
         {

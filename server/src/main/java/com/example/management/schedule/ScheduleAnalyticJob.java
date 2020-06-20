@@ -44,7 +44,7 @@ public class ScheduleAnalyticJob {
         );
     }
     
-    @Scheduled(cron = "0 30 * ? * *")
+    @Scheduled(cron = "0 30 7-20 ? * *")
     public void scheduleAnalystDetailJob() {
         webAnalyticService.analyticsDetail(30);
     }
