@@ -25,7 +25,7 @@ public class ScheduleAnalyticJob {
     private EmailUtils emailUtils;
     
     @Scheduled(cron = "0 0 * ? * *")
-    public void schedule() {
+    public void scheduleAnalystJob() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         String timeStart = format.format(new Date());
         Map<String, Integer> map = webAnalyticService.analytics();
@@ -42,5 +42,10 @@ public class ScheduleAnalyticJob {
                 null,
                 null
         );
+    }
+    
+    @Scheduled(cron = "0 30 * ? * *")
+    public void scheduleAnalystDetailJob() {
+        webAnalyticService.analyticsDetail();
     }
 }
