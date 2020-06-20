@@ -1,5 +1,6 @@
 package com.example.management.service;
 
+//<editor-fold defaultstate="collapsed" desc="IMPORT">
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
 import com.example.management.dto.JobCompanyDTO;
@@ -28,7 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+//</editor-fold>
 
 /**
  *
@@ -37,6 +40,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class WebAnalyticService {
 
+    //<editor-fold defaultstate="collapsed" desc="VARIABLES">
     @Autowired
     private WebAnalyticRepository webAnalyticRepository;
 
@@ -59,7 +63,9 @@ public class WebAnalyticService {
     private String bodyAPI;
 
     private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="ANALYTICS JOB">
     public Map<String, Integer> analytics() {
         Map<String, Integer> resultMap = new HashMap<>();
         resultMap.put("itviec", analyticsItViec());
@@ -169,7 +175,9 @@ public class WebAnalyticService {
         }
         return joiner.toString();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="GET ALL">
     public List<JobEntity> findAll() {
         List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
         List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
@@ -191,7 +199,9 @@ public class WebAnalyticService {
         }
         return joiner.toString();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="GET JOB BY COMPANY">
     public List<JobCompanyDTO> findJobListByCompany() {
         List<JobCompanyDTO> resultList = new ArrayList<>();
         List<JobEntity> list = (List<JobEntity>) jobRepository.findAll();
@@ -231,4 +241,32 @@ public class WebAnalyticService {
         return resultList;
      }
 
+    //<editor-fold defaultstate="collapsed" desc="ANALYTICS DETAIL URLS">
+    public void analyticsDetail(int numItem) {
+        List<QueryCheckerEntity> queryCheckerITViecList = queryCheckerRepository.findActiveList(1);
+        List<QueryCheckerEntity> queryCheckerVNWorkList = queryCheckerRepository.findActiveList(2);
+
+        List<JobEntity> list = jobRepository.findJobNotAnalyticsDetail(new PageRequest(0, numItem));
+        for (JobEntity job : list) {
+            try {
+                JobEntity newEntity;
+                if (job.getLink().contains("itviec")) {
+                    newEntity = analyticsDetailJob(job, queryCheckerITViecList);
+                } else {
+                    newEntity = analyticsDetailJob(job, queryCheckerVNWorkList);
+                }
+                jobRepository.save(newEntity);
+            } catch (UrlException ex) {
+                logger.error("Error when analytics data detail of link " + job.getLink(), ex);
+            }
+        }
+    }
+
+    private JobEntity analyticsDetailJob(JobEntity job, List<QueryCheckerEntity> queryCheckerList) throws UrlException {
+        Map<String, String> selectorMap = queryCheckerList.stream().collect(
+                Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
+        return urlUtils.analyticsDetailData(selectorMap, job);
+    }
+    //</editor-fold>
+    
 }

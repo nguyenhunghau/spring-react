@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
 import Moment from 'react-moment';
-import './style.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import 'bootstrap/dist/css/bootstrap.css';
 import {URL_TAG, URL_JOB} from '../../constants/path'
 import {makeSalaryMin, makeSalaryMax, collapseText} from '../../components/job-utils'
 
@@ -52,8 +50,14 @@ export default function Job() {
                 let data = resp;
                 data.map(item => {
                     item['salaryMin'] = makeSalaryMin(item['description']);
+                    item['salaryMin'] = makeSalaryMin(item['description']);
                     item['salaryMax'] = makeSalaryMax(item['description']);
                     item['descriptionMain'] = makeDescription(item['description']);
+
+                    const company = JSON.parse(item['company']);
+                    item['companyName'] = company.Name
+                    item['country'] = company.country;
+                    item['members'] = company.size;
                 });
                 setDataJob(data);
             })
@@ -73,9 +77,21 @@ export default function Job() {
         },
         {
             text: 'Company',
-            dataField: 'company',
+            dataField: 'companyName',
             sort: true,
             filter: textFilter()
+        },
+        {
+            text: 'Country',
+            dataField: 'country',
+            sort: true,
+            filter: textFilter()
+        },
+        {
+            text: 'Number members',
+            dataField: 'members',
+            sort: true,
+            filter: numberFilter()
         },
         {
             text: 'Date Post',
@@ -124,6 +140,14 @@ export default function Job() {
                 minWidth: '300px'
             },
             formatter: data => collapseText(data, 70),
+            filter: textFilter()
+        },
+        {
+            text: 'Requirement',
+            dataField: 'requirement',
+            sort: true,
+            wrap: true,
+            formatter: data => makeDescription(data),
             filter: textFilter()
         },
         {

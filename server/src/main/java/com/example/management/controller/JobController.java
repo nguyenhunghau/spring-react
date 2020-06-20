@@ -51,6 +51,12 @@ public class JobController {
         return new ResponseEntity<>(webAnalyticService.getListTag(), HttpStatus.OK);
     }
     
+    @RequestMapping(value = "/getListDetail", method = RequestMethod.GET)
+    public ResponseEntity<Object> getListDetail() {
+        webAnalyticService.analyticsDetail(10);
+        return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+    
     @RequestMapping(value = "/getListCompanyJob", method = RequestMethod.GET)
     public ResponseEntity<String> getListCompanyJob() throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
