@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
-import Moment from 'react-moment';
-import './style.css';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import 'bootstrap/dist/css/bootstrap.css';
 import {URL_COMPANY} from '../../constants/path'
+import 'bootstrap/dist/css/bootstrap.css';
+import './style.css';
 
 export default function Company() {
     const [collapsemenu, setCollapsemenu] = useState((localStorage['colapseMenu'] === 'true') || false);
