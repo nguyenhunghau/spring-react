@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.example.management.entity;
 
 import java.io.Serializable;
@@ -69,6 +64,9 @@ public class JobEntity implements Serializable {
     @Column(name = "DESCRIPTION")
     private String description;
     @Lob
+    @Column(name = "REQUIREMENT")
+    private String requirement;
+    @Lob
     @Size(max = 65535)
     @Column(name = "LINK")
     private String link;
@@ -83,6 +81,10 @@ public class JobEntity implements Serializable {
     @Column(name = "CREATED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date created;
+    
+    @Column(name = "UPDATED")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updated;
 
     public JobEntity() {
     }
@@ -198,5 +200,21 @@ public class JobEntity implements Serializable {
 
     public void setDateExpired(Date dateExpired) {
         this.dateExpired = dateExpired;
+    }
+
+    public String getRequirement() {
+        return requirement;
+    }
+
+    public void setRequirement(String requirement) {
+        this.requirement = requirement;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 }
