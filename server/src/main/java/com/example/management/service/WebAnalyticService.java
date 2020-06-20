@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 //</editor-fold>
 
@@ -228,11 +229,11 @@ public class WebAnalyticService {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="ANALYTICS DETAIL URLS">
-    public void analyticsDetail() {
+    public void analyticsDetail(int numItem) {
         List<QueryCheckerEntity> queryCheckerITViecList = queryCheckerRepository.findActiveList(1);
         List<QueryCheckerEntity> queryCheckerVNWorkList = queryCheckerRepository.findActiveList(2);
 
-        List<JobEntity> list = jobRepository.findJobNotAnalyticsDetail(30);
+        List<JobEntity> list = jobRepository.findJobNotAnalyticsDetail(new PageRequest(0, numItem));
         for (JobEntity job : list) {
             try {
                 JobEntity newEntity;

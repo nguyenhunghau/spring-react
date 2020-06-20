@@ -156,7 +156,9 @@ public class ProxyUrlUtils extends URLUtils {
             //Query to select data
             JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
             String companySize = document.select(queryMap.get("COMPANY-SIZE")).text();
-            String companyCountry = document.select(queryMap.get("COMPANY-COUNTRY")).text();
+            String companyCountry = queryMap.containsKey("COMPANY-COUNTRY")?
+                    document.select(queryMap.get("COMPANY-COUNTRY")).text()
+                    : "";
             String companyAddress = document.select(queryMap.get("COMPANY-ADDRESS")).text();
             String requirement = document.select(queryMap.get("REQUIREMENT")).text();
             

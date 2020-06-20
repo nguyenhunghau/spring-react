@@ -47,7 +47,7 @@ public class JobController {
     
     @RequestMapping(value = "/getListDetail", method = RequestMethod.GET)
     public ResponseEntity<Object> getListDetail() {
-        webAnalyticService.analyticsDetail();
+        webAnalyticService.analyticsDetail(10);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
