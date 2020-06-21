@@ -50,7 +50,6 @@ export default function Job() {
                 let data = resp;
                 data.map(item => {
                     item['salaryMin'] = makeSalaryMin(item['description']);
-                    item['salaryMin'] = makeSalaryMin(item['description']);
                     item['salaryMax'] = makeSalaryMax(item['description']);
                     item['descriptionMain'] = makeDescription(item['description']);
 
