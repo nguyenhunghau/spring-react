@@ -12,7 +12,7 @@ import '../../components/plugins/icheck-bootstrap/icheck-bootstrap.min.css';
 import '../../components/plugins/jqvmap/jqvmap.min.css';
 import '../../components/css/adminlte.min.css';
 import '../../components/css/adminlte.min.css';
-// import '../../components/plugins/bootstrap/js/bootstrap.bundle.min.js';
+import './home.css';
 
 const Home = (param) => {
 
@@ -35,7 +35,6 @@ const Home = (param) => {
     return (
         <div className={collapsemenu ? 'sidebar-mini layout-fixed sidebar-collapse' : 'wrapper'}>
             <Header changeMenu={changeMenu} />
-            <MenuLeft />
             <div class="content-wrapper">
                 {/*  Content Header (Page header)  */}
                 <div class="content-header">

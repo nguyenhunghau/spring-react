@@ -40,3 +40,7 @@ tbody > tr:nth-of-type(odd) {
 .react-bootstrap-table-pagination ul {
     float: right;
 }
+.main-header.navbar-light {
+    margin-left: 50px;
+    margin-right: 50px;
+}

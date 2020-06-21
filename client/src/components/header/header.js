@@ -1,23 +1,20 @@
 import React from 'react';
 import Message from './message'
 import {Dropdown} from 'react-bootstrap'
+import {
+    Link
+} from "react-router-dom";
 
-const Header = (props) => {
+import adminLTELogo from '../img/AdminLTELogo.png';
+import userLogo from '../img/user2-160x160.jpg';
+
+const Header = () => {
 
     return (
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" onClick={props.changeMenu} data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li>
-            </ul>
-
+            <a>
+                <img src={adminLTELogo} style={{height: '50px'}}/>
+            </a>
             <form class="form-inline ml-3">
                 <div class="input-group input-group-sm">
                     <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search" />
@@ -28,6 +25,20 @@ const Header = (props) => {
                     </div>
                 </div>
             </form>
+            
+            <ul class="navbar-nav">
+            
+                <li class="nav-item d-none d-sm-inline-block">
+                <Link to="/" class="nav-link">Home</Link>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <Link to="teaching" class="nav-link">Lớp hiện có</Link>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <Link to="teaching-register" class="nav-link">Đăng kí lớp dạy</Link>
+                </li>
+            </ul>
+
 
             <ul class="navbar-nav ml-auto">
                 <Dropdown>

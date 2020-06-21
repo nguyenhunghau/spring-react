@@ -1,0 +1,15 @@
+
+.main-header.navbar-light, .content-wrapper {
+    margin-left: 100px !important;
+    margin-right: 100px !important;
+}
+.main-header.navbar-light {
+    background-color: #50bbc3;
+}
+.main-header.navbar-light .navbar-nav a {
+    color: white !important;
+    font-weight: bold;
+}
+.job-item{
+    width: 100%;
+}

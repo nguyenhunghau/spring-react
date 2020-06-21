@@ -5,6 +5,9 @@ import Input from 'react-validation/build/input';
 import { Component } from "react";
 import { Button, FormGroup, FormControl, FormLabel  } from "react-bootstrap";
 
+import Header from '../../components/header/header';
+import Footer from '../../components/footer';
+
 
 const txtFieldState = {
   value: "",
