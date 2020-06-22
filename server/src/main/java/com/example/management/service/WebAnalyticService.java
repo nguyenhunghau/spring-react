@@ -230,7 +230,7 @@ public class WebAnalyticService {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="ANALYTICS DETAIL URLS">
-    public void analyticsDetail(int numItem) {
+    public boolean analyticsDetail(int numItem) {
         List<QueryCheckerEntity> queryCheckerITViecList = queryCheckerRepository.findActiveList(1);
         List<QueryCheckerEntity> queryCheckerVNWorkList = queryCheckerRepository.findActiveList(2);
 
@@ -248,6 +248,7 @@ public class WebAnalyticService {
                 logger.error("Error when analytics data detail of link " + job.getLink(), ex);
             }
         }
+        return true;
     }
 
     private JobEntity analyticsDetailJob(JobEntity job, List<QueryCheckerEntity> queryCheckerList) throws UrlException {

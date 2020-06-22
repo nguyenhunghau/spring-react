@@ -53,7 +53,6 @@ public class JobController {
     
     @RequestMapping(value = "/getListDetail", method = RequestMethod.GET)
     public ResponseEntity<Object> getListDetail() {
-        webAnalyticService.analyticsDetail(10);
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
     
@@ -63,6 +62,11 @@ public class JobController {
     objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
     String dtoAsString = objectMapper.writeValueAsString(webAnalyticService.findJobListByCompany());
         return new ResponseEntity<>(dtoAsString, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/analystDetail", method = RequestMethod.GET)
+    public ResponseEntity<Boolean> analystDetail() {
+        return new ResponseEntity<>(webAnalyticService.analyticsDetail(30), HttpStatus.OK);
     }
 
 //    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
