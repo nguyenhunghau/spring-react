@@ -143,7 +143,6 @@ export default function Job() {
             dataField: 'requirement',
             sort: true,
             wrap: true,
-            formatter: data => makeDescription(data),
             filter: textFilter()
         },
         {

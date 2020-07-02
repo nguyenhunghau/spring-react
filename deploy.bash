@@ -19,11 +19,11 @@ npm run build && cd .. && cp -R client/build deploy/client && cp -v client/Docke
 echo "Step3: Finish make data local"
 
 #Deploy code to server
-(rsync -avzhe "ssh -i /mnt/ec2-sin.pem" deploy/ ec2-user@54.255.250.93:/home/ec2-user/) || exit 1
+(rsync -avzhe "ssh -i /mnt/ec2-sin.pem" deploy/ ec2-user@18.141.233.76:/home/ec2-user/) || exit 1
 echo "Step4: Finish upload file to server"
 
 #Connect to server using ssh and start docker-compose
-ssh -i /mnt/ec2-sin.pem ec2-user@54.255.250.93 "cd /home/ec2-user && sudo docker-compose up --force-recreate --build -d&&sudo docker image prune -f"
+ssh -i /mnt/ec2-sin.pem ec2-user@18.141.233.76 "cd /home/ec2-user && sudo docker-compose up --force-recreate --build -d&&sudo docker image prune -f"
 #ssh -i /mnt/ec2-sin.pem ec2-user@54.255.250.93 "sudo docker rm $(docker ps -aq)"
 echo "Step5: Connect ssh to server"
 
