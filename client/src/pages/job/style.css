@@ -40,3 +40,7 @@ tbody > tr:nth-of-type(odd) {
 .react-bootstrap-table-pagination ul {
     float: right;
 }
+.date-filter .date-filter-input{
+    width: 135px;
+    font-size: 13px;
+}

@@ -51,6 +51,10 @@ export default function Company() {
                     item['salaryMin'] = Math.round(avrSalaymin / jobList.length);
                     item['salaryMax'] = Math.round(avgSalaryMax / jobList.length);
                     item['address'] = jobList[0]['address'];
+                    const company = JSON.parse(item['company']);
+                    item['companyName'] = company.Name
+                    item['country'] = company.country;
+                    item['members'] = company.size;
                     resultJobList.push(item);
                 });
 
@@ -90,9 +94,21 @@ export default function Company() {
     const columns = [
         {
             text: 'Company',
-            dataField: 'company',
+            dataField: 'companyName',
+            sort: true,
+            filter: textFilter(),
+            formatter: data => <a target="_blank" href={`index?company=${data}`} style={{ width: "110px" }}>{data}</a>,
+        }, {
+            text: 'Country',
+            dataField: 'country',
             sort: true,
             filter: textFilter()
+        },
+        {
+            text: 'Number members',
+            dataField: 'members',
+            sort: true,
+            filter: numberFilter()
         },
         {
             text: 'Number Job',
@@ -114,7 +130,7 @@ export default function Company() {
         },
         {
             text: 'Tag',
-            dataField: 'tag',
+            dataField: 'tags',
             sort: true,
             filter: textFilter()
         },

@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 //</editor-fold>
 
@@ -42,8 +43,9 @@ public class JobController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public ResponseEntity<List<JobEntity>> list() {
-        return new ResponseEntity<>(webAnalyticService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<JobEntity>> list(@RequestParam(value = "company", defaultValue = "") String company) {
+        System.out.println(company);
+        return new ResponseEntity<>(webAnalyticService.findAll(company), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getListTag", method = RequestMethod.GET)

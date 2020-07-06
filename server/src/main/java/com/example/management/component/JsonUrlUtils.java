@@ -4,6 +4,7 @@ import com.example.management.entity.JobEntity;
 import com.example.management.exception.UrlException;
 import com.example.management.service.WebAnalyticService;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.InvalidJsonException;
 import com.jayway.jsonpath.JsonPath;
@@ -57,7 +58,9 @@ public class JsonUrlUtils extends URLUtils {
                 String address = makeDataFromJsonArray(document, makeQueryChecker(queryMap, "ADDRESS", i));
                 int publishDate = JsonPath.read(document, makeQueryChecker(queryMap, "DATE_POST", i));
                 int expiredDate = JsonPath.read(document, makeQueryChecker(queryMap, "DATE_EXPIRED", i));
-                resultList.add(new JobEntity(0, title, company, "", makeDatePost(publishDate), makeDatePost(expiredDate), description, link, tags, address, new Date()));
+                JsonObject object = new JsonObject();
+                object.addProperty("Name", company);
+                resultList.add(new JobEntity(0, title, object.toString(), "", makeDatePost(publishDate), makeDatePost(expiredDate), description, link, tags, address, new Date()));
             }
         } catch (InvalidJsonException ex) {
             logger.error("Error when parse Json of JsonPath", ex);

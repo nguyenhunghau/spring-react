@@ -13,6 +13,11 @@ import com.example.management.repository.JobRepository;
 import com.example.management.repository.QueryCheckerRepository;
 import com.example.management.repository.TagRepository;
 import com.example.management.repository.WebAnalyticRepository;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -23,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,14 +183,25 @@ public class WebAnalyticService {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="GET ALL">
-    public List<JobEntity> findAll() {
+    public List<JobEntity> findAll(String company) {
+        List<JobEntity> resultList = new ArrayList<>();
+        try {
+            company = URLDecoder.decode(company, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            java.util.logging.Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
+        }
         List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
         List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
+            JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
+            if(!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
+                continue;
+            }
             String[] tagIdArray = entity.getTagIds().split(",");
             entity.setTagIds(makeTagNameJoiner(tagIdArray, tagList));
+            resultList.add(entity);
         }
-        return jobList;
+        return resultList;
     }
 
     private String makeTagNameJoiner(String[] tagIdArray, List<TagEntity> tagList) {

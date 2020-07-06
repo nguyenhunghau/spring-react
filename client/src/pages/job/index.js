@@ -7,8 +7,9 @@ import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, mult
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import {URL_TAG, URL_JOB} from '../../constants/path'
 import {makeSalaryMin, makeSalaryMax} from '../../components/job-utils'
+import queryString from 'query-string';
 
-export default function Job() {
+export default function Job(props) {
 
     const [collapsemenu, setCollapsemenu] = useState((localStorage['colapseMenu'] === 'true') || false);
     const [tagList, setTagList] = useState({});
@@ -44,7 +45,8 @@ export default function Job() {
     }
 
     const getListJob = () => {
-        fetch(URL_JOB)
+        let params = queryString.parse(props.location.search);
+        fetch(URL_JOB + '?company=' + (params.company? encodeURIComponent(params.company): ''))
             .then(resp => resp.json())
             .then(resp => {
                 let data = resp;
@@ -143,6 +145,7 @@ export default function Job() {
             dataField: 'requirement',
             sort: true,
             wrap: true,
+            formatter: data => makeRequirement(data),
             filter: textFilter()
         },
         {
@@ -185,6 +188,13 @@ export default function Job() {
         }
         return myObject.benefitValue;
     }
+
+    const makeRequirement = (requirement) => {
+        const requirementShorter = requirement && requirement.length > 300? requirement.substring(0, 200) + '...': requirement;
+        return <span title={`${requirement
+                }`}>{requirementShorter}</span>;
+    }
+
 
     const customTotal = (from, to, size) => (
         <span className="react-bootstrap-table-pagination-total">
