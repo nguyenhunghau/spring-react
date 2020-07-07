@@ -5,8 +5,8 @@ import Moment from 'react-moment';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import {URL_TAG, URL_JOB} from '../../constants/path'
-import {makeSalaryMin, makeSalaryMax} from '../../components/job-utils'
+import { URL_TAG, URL_JOB } from '../../constants/path'
+import { makeSalaryMin, makeSalaryMax } from '../../components/job-utils'
 import queryString from 'query-string';
 
 export default function Job(props) {
@@ -14,6 +14,8 @@ export default function Job(props) {
     const [collapsemenu, setCollapsemenu] = useState((localStorage['colapseMenu'] === 'true') || false);
     const [tagList, setTagList] = useState({});
     const [dataJob, setDataJob] = useState([]);
+    const [showAll, setShowAll] = useState(false);
+    const [isFirstTime, setIsFirstTime] = useState(true);
 
     const changeMenu = () => {
         const newValue = !collapsemenu;
@@ -21,15 +23,23 @@ export default function Job(props) {
         setCollapsemenu(newValue);
     }
 
+    const changeCheckbox = (value) => {
+        setShowAll(value);
+    }
+
     useEffect(() => {
         getListJob();
         getListTag();
         wrap(document.querySelector(".card-pagination"), 'react-bootstrap-table-pagination');
-    }, []);
+        setIsFirstTime(false);
+    }, [showAll]);
 
     const wrap = (node, tag) => {
-        node.parentNode.insertBefore(document.getElementsByClassName(tag)[0], node);
-        node.previousElementSibling.appendChild(node);
+        if (isFirstTime) {
+            node.parentNode.insertBefore(document.getElementsByClassName(tag)[0], node);
+            node.previousElementSibling.appendChild(node);
+            //document.querySelector('.' + tag).append(document.querySelector('.filter-job'));
+        }
     }
 
     const getListTag = () => {
@@ -46,7 +56,14 @@ export default function Job(props) {
 
     const getListJob = () => {
         let params = queryString.parse(props.location.search);
-        fetch(URL_JOB + '?company=' + (params.company? encodeURIComponent(params.company): ''))
+        fetch(URL_JOB,
+            {
+                method: 'POST',
+                body: JSON.stringify({ company: (params.company ? encodeURIComponent(params.company) : ''), showAll: showAll }), headers: {
+                    'Content-Type': 'application/json'
+                },
+            }
+        )
             .then(resp => resp.json())
             .then(resp => {
                 let data = resp;
@@ -190,9 +207,9 @@ export default function Job(props) {
     }
 
     const makeRequirement = (requirement) => {
-        const requirementShorter = requirement && requirement.length > 300? requirement.substring(0, 200) + '...': requirement;
+        const requirementShorter = requirement && requirement.length > 300 ? requirement.substring(0, 200) + '...' : requirement;
         return <span title={`${requirement
-                }`}>{requirementShorter}</span>;
+            }`}>{requirementShorter}</span>;
     }
 
 
@@ -231,6 +248,9 @@ export default function Job(props) {
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-pagination">
+                                    <div class="filter-job">
+                                        <label><input type="checkbox" checked={showAll} onChange={(e) => changeCheckbox(e.target.checked)} /> Show All Job</label>
+                                    </div>
                                 </div>
                                 {/*  /.card-header  */}
                                 <div class="card-body">

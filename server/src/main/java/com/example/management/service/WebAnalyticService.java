@@ -4,6 +4,7 @@ package com.example.management.service;
 import com.example.management.component.JsonUrlUtils;
 import com.example.management.component.ProxyUrlUtils;
 import com.example.management.dto.JobCompanyDTO;
+import com.example.management.dto.JobSearchDTO;
 import com.example.management.entity.JobEntity;
 import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
@@ -21,6 +22,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -183,14 +185,15 @@ public class WebAnalyticService {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="GET ALL">
-    public List<JobEntity> findAll(String company) {
+    public List<JobEntity> findAll(JobSearchDTO jobSearchDTO) {
         List<JobEntity> resultList = new ArrayList<>();
+        String company = "";
         try {
-            company = URLDecoder.decode(company, "UTF-8");
+            company = URLDecoder.decode(jobSearchDTO.getCompany(), "UTF-8");
         } catch (UnsupportedEncodingException ex) {
             java.util.logging.Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        List<JobEntity> jobList = (List<JobEntity>) jobRepository.findAll();
+        List<JobEntity> jobList = jobSearchDTO.getShowAll()?  (List<JobEntity>) jobRepository.findAll(): jobRepository.findAllNotExpired(new Date());
         List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
             JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();

@@ -3,6 +3,7 @@ package com.example.management.controller;
 //<editor-fold defaultstate="collapsed" desc="IMPORT">
 import com.example.management.component.EmailUtils;
 import com.example.management.dto.JobCompanyDTO;
+import com.example.management.dto.JobSearchDTO;
 import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,10 +44,9 @@ public class JobController {
         return new ResponseEntity<>(webAnalyticService.analytics(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public ResponseEntity<List<JobEntity>> list(@RequestParam(value = "company", defaultValue = "") String company) {
-        System.out.println(company);
-        return new ResponseEntity<>(webAnalyticService.findAll(company), HttpStatus.OK);
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    public ResponseEntity<List<JobEntity>> list(@RequestBody JobSearchDTO jobSearchDTO) {
+        return new ResponseEntity<>(webAnalyticService.findAll(jobSearchDTO), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getListTag", method = RequestMethod.GET)

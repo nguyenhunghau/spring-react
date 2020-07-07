@@ -44,3 +44,6 @@ tbody > tr:nth-of-type(odd) {
     width: 135px;
     font-size: 13px;
 }
+.filter-job {
+    margin-left: 25px;
+}
