@@ -25,6 +25,6 @@ public interface JobRepository extends CrudRepository<JobEntity, Integer> {
     @Query(value = "SELECT j FROM JobEntity j WHERE j.requirement is null")
     public List<JobEntity> findJobNotAnalyticsDetail(Pageable pageable);
 
-    @Query(value = "SELECT j FROM JobEntity j WHERE j.requirement is null and dateExpired >= :date")
+    @Query(value = "SELECT j FROM JobEntity j WHERE dateExpired >= :date")
     public List<JobEntity> findAllNotExpired(@Param(value = "date") Date date);
 }
