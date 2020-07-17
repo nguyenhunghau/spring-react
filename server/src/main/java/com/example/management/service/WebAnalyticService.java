@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -37,6 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 //</editor-fold>
 
@@ -72,11 +76,42 @@ public class WebAnalyticService {
     private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
     //</editor-fold>
 
+    public  Map<String, Integer> analyticsFuture(Future<Integer> futureIT, Future<List<JobEntity>> futureVNWork) {
+        Map<String, Integer> resultMap = new HashMap<>();
+        try {
+            while (!(futureIT.isDone() && futureVNWork.isDone())) {
+                if (futureIT.isDone() && futureVNWork.isDone()) {
+                    resultMap.put("itviec", futureIT.get());
+                    resultMap.put("vnwork", futureVNWork.get().size());
+                }
+            }
+        } catch (InterruptedException ex) {
+            logger.error("Error when sleep", ex);
+        } catch (ExecutionException ex) {
+            logger.error("Error when sleep", ex);
+        }
+
+        return resultMap;
+    }
     //<editor-fold defaultstate="collapsed" desc="ANALYTICS JOB">
     public Map<String, Integer> analytics() {
         Map<String, Integer> resultMap = new HashMap<>();
-        resultMap.put("itviec", analyticsItViec());
-        resultMap.put("vnwork", analyticsVietNamWork().size());
+        Future<Integer> futureIT = analyticsItViec();
+        Future futureVNWork = analyticsVietNamWork();
+        try {
+            Thread.sleep(100);
+            while (!(futureIT.isDone() && futureVNWork.isDone())) {
+                if (futureIT.isDone() && futureVNWork.isDone()) {
+                    resultMap.put("itviec", futureIT.get());
+                    resultMap.put("vnwork", ((List<JobEntity>)futureVNWork.get()).size());
+                }
+            }
+        } catch (InterruptedException ex) {
+            logger.error("Error when sleep", ex);
+        } catch (ExecutionException ex) {
+            logger.error("Error when sleep", ex);
+        }
+
         return resultMap;
     }
 
@@ -84,7 +119,8 @@ public class WebAnalyticService {
         return (List<TagEntity>) tagRepository.findAll();
     }
 
-    public List<JobEntity> analyticsVietNamWork() {
+    @Async("threadPoolTaskExecutor")
+    public Future<List<JobEntity>> analyticsVietNamWork() {
         List<JobEntity> resultList = new ArrayList<>();
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(2).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);
@@ -97,7 +133,7 @@ public class WebAnalyticService {
                 String body = bodyAPI.replace("{item}", String.valueOf(page++));
                 List<JobEntity> list = jsonUrlUtils.analyticsData(webAnalyticEntity.getLink(), selectorMap, body);
                 if (list.isEmpty()) {
-                    return resultList;
+                    return new AsyncResult(resultList);
                 }
                 boolean isStopRun = false;
                 for (JobEntity entity : list) {
@@ -113,17 +149,18 @@ public class WebAnalyticService {
                 jobRepository.saveAll(saveList);
                 resultList.addAll(saveList);
                 if (isStopRun) {
-                    return resultList;
+                    return new AsyncResult(resultList);
                 }
             }
 
         } catch (UrlException ex) {
             logger.error("Error when analytics data VietnamWork", ex);
         }
-        return new ArrayList<>();
+        return new AsyncResult(new ArrayList<>());
     }
 
-    public int analyticsItViec() {
+    @Async("threadPoolTaskExecutor")
+    public Future<Integer> analyticsItViec() {
         int result = 0;
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(1).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(1);
@@ -139,7 +176,7 @@ public class WebAnalyticService {
                 break;
             }
         }
-        return result;
+        return new AsyncResult(result);
     }
 
     private List<JobEntity> analyticsUrl(String url, Map<String, String> selectorMap) throws UrlException {
@@ -193,11 +230,11 @@ public class WebAnalyticService {
         } catch (UnsupportedEncodingException ex) {
             java.util.logging.Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        List<JobEntity> jobList = jobSearchDTO.getShowAll()?  (List<JobEntity>) jobRepository.findAll(): jobRepository.findAllNotExpired(new Date());
+        List<JobEntity> jobList = jobSearchDTO.getShowAll() ? (List<JobEntity>) jobRepository.findAll() : jobRepository.findAllNotExpired(new Date());
         List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
             JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
-            if(!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
+            if (!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
                 continue;
             }
             String[] tagIdArray = entity.getTagIds().split(",");
@@ -276,5 +313,5 @@ public class WebAnalyticService {
         return urlUtils.analyticsDetailData(selectorMap, job);
     }
     //</editor-fold>
-    
+
 }

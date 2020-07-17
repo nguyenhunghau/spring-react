@@ -1,6 +1,6 @@
 FROM alpine
 EXPOSE 80
-ADD config/default.conf /etc/nginx/conf.d/default.conf
+ADD config/default.conf /etc/nginx/conf.d/default.conf --no-cache
 COPY . /react
 RUN apk add nginx && \
     mkdir /run/nginx;

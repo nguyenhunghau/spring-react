@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,9 @@ public class JobController {
 
     @RequestMapping(value = "/getListJob", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Integer>> index() {
-        return new ResponseEntity<>(webAnalyticService.analytics(), HttpStatus.OK);
+         Future<Integer> futureIT = webAnalyticService.analyticsItViec();
+        Future futureVNWork = webAnalyticService.analyticsVietNamWork();
+        return new ResponseEntity<>(webAnalyticService.analyticsFuture(futureIT, futureVNWork), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
