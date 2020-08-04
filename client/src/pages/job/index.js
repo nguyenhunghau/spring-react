@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import Header from '../../components/header/header';
 import MenuLeft from '../../components/menu/menu-left';
-import DataTable, { createTheme, Button } from 'react-data-table-component';
-import dataJob from '../../list.json';
-import '../job/style.css';
 import Moment from 'react-moment';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { selectFilter, dateFilter, textFilter, numberFilter, multiSelectFilter } from 'react-bootstrap-table2-filter';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import 'bootstrap/dist/css/bootstrap.css';
+import { URL_TAG, URL_JOB } from '../../constants/path'
+import { makeSalaryMin, makeSalaryMax } from '../../components/job-utils'
+import queryString from 'query-string';
 
+export default function Job(props) {
 
-export default function Table() {
-
-    const [collapsemenu, setCollapsemenu] = useState(localStorage['colapseMenu'] || false);
+    const [collapsemenu, setCollapsemenu] = useState((localStorage['colapseMenu'] === 'true') || false);
     const [tagList, setTagList] = useState({});
     const [dataJob, setDataJob] = useState([]);
+    const [showAll, setShowAll] = useState(false);
+    const [isFirstTime, setIsFirstTime] = useState(true);
 
     const changeMenu = () => {
         const newValue = !collapsemenu;
@@ -23,13 +23,27 @@ export default function Table() {
         setCollapsemenu(newValue);
     }
 
+    const changeCheckbox = (value) => {
+        setShowAll(value);
+    }
+
     useEffect(() => {
         getListJob();
         getListTag();
-    }, []);
+        wrap(document.querySelector(".card-pagination"), 'react-bootstrap-table-pagination');
+        setIsFirstTime(false);
+    }, [showAll]);
+
+    const wrap = (node, tag) => {
+        if (isFirstTime) {
+            node.parentNode.insertBefore(document.getElementsByClassName(tag)[0], node);
+            node.previousElementSibling.appendChild(node);
+            //document.querySelector('.' + tag).append(document.querySelector('.filter-job'));
+        }
+    }
 
     const getListTag = () => {
-        fetch('http://localhost:8088/getListTag')
+        fetch(URL_TAG)
             .then(resp => resp.json())
             .then(resp => {
                 let optionObject = {};
@@ -41,13 +55,27 @@ export default function Table() {
     }
 
     const getListJob = () => {
-        fetch('http://localhost:8088/list')
+        let params = queryString.parse(props.location.search);
+        fetch(URL_JOB,
+            {
+                method: 'POST',
+                body: JSON.stringify({ company: (params.company ? encodeURIComponent(params.company) : ''), showAll: showAll }), headers: {
+                    'Content-Type': 'application/json'
+                },
+            }
+        )
             .then(resp => resp.json())
             .then(resp => {
                 let data = resp;
                 data.map(item => {
                     item['salaryMin'] = makeSalaryMin(item['description']);
+                    item['salaryMin'] = makeSalaryMin(item['description']);
                     item['salaryMax'] = makeSalaryMax(item['description']);
+
+                    const company = JSON.parse(item['company']);
+                    item['companyName'] = company.Name
+                    item['country'] = company.country;
+                    item['members'] = company.size;
                 });
                 setDataJob(data);
             })
@@ -56,7 +84,7 @@ export default function Table() {
     const defaultSorted = [{
         dataField: 'datePost',
         order: 'desc'
-      }];
+    }];
 
     const columns = [
         {
@@ -67,16 +95,28 @@ export default function Table() {
         },
         {
             text: 'Company',
-            dataField: 'company',
+            dataField: 'companyName',
             sort: true,
             filter: textFilter()
+        },
+        {
+            text: 'Country',
+            dataField: 'country',
+            sort: true,
+            filter: textFilter()
+        },
+        {
+            text: 'Number members',
+            dataField: 'members',
+            sort: true,
+            filter: numberFilter()
         },
         {
             text: 'Date Post',
             dataField: 'datePost',
             sort: true,
             style: {
-                maxWidth: '120px'
+                maxWidth: '80px'
             },
             formatter: data => <Moment format="YYYY/MM/DD">{data}</Moment>,
             filter: dateFilter()
@@ -86,7 +126,7 @@ export default function Table() {
             dataField: 'dateExpired',
             sort: true,
             style: {
-                maxWidth: '100px'
+                maxWidth: '80px'
             },
             formatter: data => (data ? <Moment format="YYYY/MM/DD">{data}</Moment> : ''),
             filter: dateFilter()
@@ -115,6 +155,14 @@ export default function Table() {
             sort: true,
             wrap: true,
             formatter: data => makeDescription(data),
+            filter: textFilter()
+        },
+        {
+            text: 'Requirement',
+            dataField: 'requirement',
+            sort: true,
+            wrap: true,
+            formatter: data => makeRequirement(data),
             filter: textFilter()
         },
         {
@@ -149,38 +197,6 @@ export default function Table() {
         },
     ];
 
-    const makeSalaryMin = (description) => {
-        let myObject = JSON.parse(description);
-        if ('salaryMin' in myObject) {
-            return parseInt(myObject.salaryMin);
-        }
-        let salary = myObject.salary.replace(/\$|,|\.|\+USD|usd|m vnd/g, '').trim();
-        var salaryArray = salary.split(' ');
-        if (salary.startsWith('From') && !isNaN(salaryArray[salaryArray.length - 1])) {
-            return parseInt(salaryArray[salaryArray.length - 1]);
-        } else if (!isNaN(salaryArray[0])) {
-            return parseInt(salaryArray[0]);
-        }
-        return 0;
-    }
-
-    const makeSalaryMax = (description) => {
-        let myObject = JSON.parse(description);
-        if ('salaryMax' in myObject) {
-            return Math.max(parseInt(myObject.salaryMax), parseInt(myObject.jobSalary));
-        }
-        let salary = myObject.salary.replace(/\$|,|\.|\+|USD|usd|m vnd/g, '').trim();
-        var salaryArray = salary.split(' ');
-        if (salary.startsWith('From')) {
-            return -1;
-        }
-        if (salary.startsWith('Up') || !isNaN(salaryArray[salaryArray.length - 1])) {
-            return parseInt(salaryArray[salaryArray.length - 1]);
-        }
-        return -1;
-    }
-
-
     const makeDescription = (description) => {
         let result = '';
         let myObject = JSON.parse(description);
@@ -189,6 +205,13 @@ export default function Table() {
         }
         return myObject.benefitValue;
     }
+
+    const makeRequirement = (requirement) => {
+        const requirementShorter = requirement && requirement.length > 300 ? requirement.substring(0, 200) + '...' : requirement;
+        return <span title={`${requirement
+            }`}>{requirementShorter}</span>;
+    }
+
 
     const customTotal = (from, to, size) => (
         <span className="react-bootstrap-table-pagination-total">
@@ -205,13 +228,13 @@ export default function Table() {
         paginationTotalRenderer: customTotal,
         sizePerPageList: [{
             text: '30', value: 30
-          }, {
+        }, {
             text: '50', value: 50
-          }, {
+        }, {
             text: '100', value: 100
-          }, {
+        }, {
             text: 'All', value: dataJob.length
-          }] 
+        }]
     };
 
     return (
@@ -219,30 +242,15 @@ export default function Table() {
             <Header changeMenu={changeMenu} />
             <MenuLeft />
             <div class="content-wrapper">
-                {/*  Content Header (Page header)  */}
-                <section class="content-header">
-                    <div class="container-fluid">
-                        <div class="row mb-2">
-                            <div class="col-sm-6">
-                                <h1>DataTables</h1>
-                            </div>
-                            <div class="col-sm-6">
-                                <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active">DataTables</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>{/*  /.container-fluid  */}
-                </section>
-
                 {/*  Main content  */}
                 <section class="content">
                     <div class="row">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">DataTable with minimal features & hover style</h3>
+                                <div class="card-pagination">
+                                    <div class="filter-job">
+                                        <label><input type="checkbox" checked={showAll} onChange={(e) => changeCheckbox(e.target.checked)} /> Show All Job</label>
+                                    </div>
                                 </div>
                                 {/*  /.card-header  */}
                                 <div class="card-body">

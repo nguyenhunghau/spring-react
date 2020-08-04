@@ -11,6 +11,7 @@ import '../css/style.css';
 import NavItem from './nav-item';
 import adminLTELogo from '../img/AdminLTELogo.png';
 import userLogo from '../img/user2-160x160.jpg';
+import {URL_MENU} from '../../constants/path'
 
 const MenuLeft = () => {
 
@@ -33,12 +34,12 @@ const MenuLeft = () => {
     // ]
 
     useEffect(() => {
-        fetch('http://localhost:8181/getList')
+        fetch(URL_MENU)
         .then(resp => resp.json())
         .then(resp => {
             setNavData(resp);
         })
-    });
+    }, []);
 
     const expandChild = (ev) => {
         console.log(ev);

@@ -4,8 +4,7 @@ import java.util.List;
 
 /**
  *
- * @author Le Tan Phuc
- * @email letanphuc@fabercompany.co.jp
+ * @author Nguyen Hung Hau
  */
 public class MenuDTO {
     
@@ -21,8 +20,6 @@ public class MenuDTO {
         this.childMenu = childMenu;
     }
     
-    
-
     public String getText() {
         return text;
     }
@@ -54,5 +51,4 @@ public class MenuDTO {
     public void setChildMenu(List<MenuDTO> childMenu) {
         this.childMenu = childMenu;
     }
-    
 }

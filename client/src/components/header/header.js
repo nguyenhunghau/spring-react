@@ -2,13 +2,13 @@ import React from 'react';
 import Message from './message'
 import {Dropdown} from 'react-bootstrap'
 
-const Header = ({ changeMenu }) => {
+const Header = (props) => {
 
     return (
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a class="nav-link" onClick={changeMenu} data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                    <a class="nav-link" onClick={props.changeMenu} data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="index3.html" class="nav-link">Home</a>

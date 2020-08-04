@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  maven:
+    image: spring-react_maven
+    ports:
+      - 8181:8088
+    working_dir: /server
+    volumes:
+      - ./server/target:/mnt
+      - ./server/log:/var/logs
+      
+  react:
+    image: spring-react_react
+    ports:
+      - 80:80
+    links:
+      - maven
+  
+networks:
+  client:

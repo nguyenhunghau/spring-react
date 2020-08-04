@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.example.management.service;
 
 import com.example.management.dto.MenuDTO;
@@ -13,8 +7,7 @@ import org.springframework.stereotype.Service;
 
 /**
  *
- * @author Le Tan Phuc
- * @email letanphuc@fabercompany.co.jp
+ * @author Nguyen Hung Hau
  */
 @Service
 public class MenuService {
@@ -25,7 +18,7 @@ public class MenuService {
         
         List<MenuDTO> resultList = new ArrayList<>();
         resultList.add(new MenuDTO("DashBoard", "", "nav-icon fas fa-tachometer-alt", childMenuDB));
-        resultList.add(new MenuDTO("Widgets", "widgets", "nav-icon fas fa-tachometer-alt", null));
+        resultList.add(new MenuDTO("Good Company", "company", "nav-icon fas fa-tachometer-alt", null));
         return resultList;
     }
 }

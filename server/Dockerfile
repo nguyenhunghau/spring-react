@@ -1,5 +1,2 @@
-FROM openjdk:8-jdk-alpine
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
-
+FROM java:8
+ENTRYPOINT [ "sh", "-c", "java -jar /mnt/app.jar --spring.config.location=file:////mnt/application.properties" ]
