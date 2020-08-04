@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.example.management;
 
-
+//<editor-fold defaultstate="collapsed" desc="IMPORT">
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.HashMap;
@@ -21,6 +15,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+//</editor-fold>
 
 @Configuration
 @EnableTransactionManagement
@@ -52,7 +47,6 @@ public class DdConfig {
     @Value("${hibernate.use-new-id-generator-mappings}")
     private String newIdGeneratorMappings;
 
-//    @Primary
     @Bean
     public DataSource firstDataSource() {
         HikariConfig config = new HikariConfig();

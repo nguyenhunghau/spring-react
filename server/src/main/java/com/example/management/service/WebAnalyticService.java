@@ -18,7 +18,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,8 +31,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +43,7 @@ import org.springframework.stereotype.Service;
  * @author Nguyen Hung hau
  */
 @Service
+@Slf4j
 public class WebAnalyticService {
 
     //<editor-fold defaultstate="collapsed" desc="VARIABLES">
@@ -68,24 +67,19 @@ public class WebAnalyticService {
 
     @Value("${data.vietnamwork}")
     private String bodyAPI;
-
-    private static final Logger logger = LoggerFactory.getLogger(WebAnalyticService.class);
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="ANALYTICS JOB">
     public Map<String, Integer> analytics() {
         Map<String, Integer> resultMap = new HashMap<>();
         resultMap.put("itviec", analyticsItViec());
-        resultMap.put("vnwork", analyticsVietNamWork().size());
+        resultMap.put("vnwork", analyticsVietNamWork());
         return resultMap;
     }
 
-    public List<TagEntity> getListTag() {
-        return (List<TagEntity>) tagRepository.findAll();
-    }
-
-    public List<JobEntity> analyticsVietNamWork() {
-        List<JobEntity> resultList = new ArrayList<>();
+    //<editor-fold defaultstate="collapsed" desc="ANALYST JOB OF VN WORK">
+    private int analyticsVietNamWork() {
+        int result = 0;
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(2).get();
         List<QueryCheckerEntity> queryCheckerList = queryCheckerRepository.findActiveList(2);
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
@@ -93,36 +87,26 @@ public class WebAnalyticService {
         int page = 0;
         try {
             while (true) {
-                List<JobEntity> saveList = new ArrayList<>();
                 String body = bodyAPI.replace("{item}", String.valueOf(page++));
                 List<JobEntity> list = jsonUrlUtils.analyticsData(webAnalyticEntity.getLink(), selectorMap, body);
                 if (list.isEmpty()) {
-                    return resultList;
+                    return result;
                 }
-                boolean isStopRun = false;
-                for (JobEntity entity : list) {
-                    JobEntity jobExist = jobRepository.findByLinkAndTitle(entity.getLink(), entity.getTitle());
-                    if (jobExist != null) {
-                        isStopRun = true;
-                        break;
-                    }
-                    String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
-                    entity.setTagIds(tagIdJoiner);
-                    saveList.add(entity);
-                }
-                jobRepository.saveAll(saveList);
-                resultList.addAll(saveList);
-                if (isStopRun) {
-                    return resultList;
+                List<JobEntity> saveList = saveJobEntityList(list);
+                result += saveList.size();
+                if (saveList.size() < list.size()) {
+                    return result;
                 }
             }
 
         } catch (UrlException ex) {
-            logger.error("Error when analytics data VietnamWork", ex);
+            log.error("Error when analytics data VietnamWork", ex);
+            return result;
         }
-        return new ArrayList<>();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="ANALYST JOB OF IT VIEC">
     public int analyticsItViec() {
         int result = 0;
         WebAnalyticEntity webAnalyticEntity = webAnalyticRepository.findById(1).get();
@@ -130,41 +114,37 @@ public class WebAnalyticService {
         Map<String, String> selectorMap = queryCheckerList.stream().collect(
                 Collectors.toMap(QueryCheckerEntity::getQueryType, QueryCheckerEntity::getQueryValue));
         int page = 1;
-        while (true) {
-            try {
-                result += analyticsUrl(webAnalyticEntity.getLink() + "?page=" + page++, selectorMap).size();
-            } catch (UrlException ex) {
-                logger.error("Error when analytics data IT Viec", ex);
-                result += Integer.parseInt(ex.getMessage().split("\n")[1]);
-                break;
+        try {
+            while (true) {
+                List<JobEntity> jobEntityList = urlUtils.analyticsData(webAnalyticEntity.getLink() + "?page=" + page++, selectorMap, "");
+                if (jobEntityList.isEmpty()) {
+                    return result;
+                }
+                List<JobEntity> saveList = saveJobEntityList(jobEntityList);
+                result += saveList.size();
+                if (saveList.size() < jobEntityList.size()) {
+                    return result;
+                }
             }
+        } catch (UrlException ex) {
+            log.error("Error when analytics data IT Viec", ex);
+            return result;
         }
-        return result;
     }
-
-    private List<JobEntity> analyticsUrl(String url, Map<String, String> selectorMap) throws UrlException {
-        List<JobEntity> list = urlUtils.analyticsData(url, selectorMap, "");
-        if (list.isEmpty()) {
-            throw new UrlException("Can find any Job\n0");
-        }
-        boolean isStopRun = false;
+    //</editor-fold>
+    
+    private List<JobEntity> saveJobEntityList(List<JobEntity> dataList) {
         List<JobEntity> saveList = new ArrayList<>();
-        for (JobEntity entity : list) {
+        for (JobEntity entity : dataList) {
             JobEntity jobExist = jobRepository.findByLinkAndTitle(entity.getLink(), entity.getTitle());
             if (jobExist != null) {
-                isStopRun = true;
                 break;
             }
             String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
             entity.setTagIds(tagIdJoiner);
             saveList.add(entity);
         }
-        System.out.println("Size of list " + saveList.size());
-        jobRepository.saveAll(saveList);
-        if (isStopRun) {
-            throw new UrlException("Found all new jobs\n" + saveList.size());
-        }
-        return saveList;
+        return (List<JobEntity>) jobRepository.saveAll(saveList);
     }
 
     private String makeTagIdJoiner(String tagNames) {
@@ -193,11 +173,11 @@ public class WebAnalyticService {
         } catch (UnsupportedEncodingException ex) {
             java.util.logging.Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
         }
-        List<JobEntity> jobList = jobSearchDTO.getShowAll()?  (List<JobEntity>) jobRepository.findAll(): jobRepository.findAllNotExpired(new Date());
+        List<JobEntity> jobList = jobSearchDTO.getShowAll() ? (List<JobEntity>) jobRepository.findAll() : jobRepository.findAllNotExpired(new Date());
         List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
             JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
-            if(!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
+            if (!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
                 continue;
             }
             String[] tagIdArray = entity.getTagIds().split(",");
@@ -265,7 +245,7 @@ public class WebAnalyticService {
                 }
                 jobRepository.save(newEntity);
             } catch (UrlException ex) {
-                logger.error("Error when analytics data detail of link " + job.getLink(), ex);
+                log.error("Error when analytics data detail of link " + job.getLink(), ex);
             }
         }
     }
@@ -277,4 +257,9 @@ public class WebAnalyticService {
     }
     //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="GET TAG LIST">
+    public List<TagEntity> getListTag() {
+        return (List<TagEntity>) tagRepository.findAll();
+    }
+    //</editor-fold>
 }

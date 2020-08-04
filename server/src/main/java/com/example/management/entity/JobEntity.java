@@ -103,7 +103,6 @@ public class JobEntity implements Serializable {
         this.created = created;
         this.dateExpired = dateExpired;
     }
-
     
     public JobEntity(Integer id) {
         this.id = id;

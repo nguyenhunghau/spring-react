@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author USER
+ * @author Nguyen HUng Hau
  */
 @RestController
 @RequestMapping("/schedule")

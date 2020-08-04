@@ -1,8 +1,6 @@
 package com.example.management.controller;
 
 //<editor-fold defaultstate="collapsed" desc="IMPORT">
-import com.example.management.component.EmailUtils;
-import com.example.management.dto.JobCompanyDTO;
 import com.example.management.dto.JobSearchDTO;
 import com.example.management.entity.*;
 import com.example.management.service.WebAnalyticService;
@@ -12,32 +10,26 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 //</editor-fold>
 
 /**
  *
- * @author USER
+ * @author Nguyen Hung Hau
  */
 @RestController
+@Slf4j
 public class JobController {
 
     @Autowired
     private WebAnalyticService webAnalyticService;
-
-    @Autowired
-    private EmailUtils emailUtils;
-
-    private static final Logger logger = LoggerFactory.getLogger(JobController.class);
 
     @RequestMapping(value = "/getListJob", method = RequestMethod.GET)
     public ResponseEntity<Map<String, Integer>> index() {
@@ -67,16 +59,4 @@ public class JobController {
     String dtoAsString = objectMapper.writeValueAsString(webAnalyticService.findJobListByCompany());
         return new ResponseEntity<>(dtoAsString, HttpStatus.OK);
     }
-
-//    @RequestMapping(value = "/send-mail", method = RequestMethod.GET)
-//    public ResponseEntity<String> test() {
-//        emailUtils.sendMail(
-//                "Test Send Email",
-//                "Hello SendGrid",
-//                Collections.singletonList("nguyenhunghau.us@gmail.com"),
-//                null,
-//                null
-//        );
-//        return new ResponseEntity<>("abc", HttpStatus.OK);
-//    }
 }
