@@ -22,4 +22,7 @@ public interface JobRepository extends CrudRepository<JobEntity, Integer> {
 
     @Query(value = "SELECT j FROM JobEntity j WHERE dateExpired >= :date")
     public List<JobEntity> findAllNotExpired(@Param(value = "date") Date date);
+    
+    @Query(value = "SELECT j FROM JobEntity j WHERE j.id = (SELECT max(i.id) FROM JobEntity i)")
+    public JobEntity findLastItem();
 }

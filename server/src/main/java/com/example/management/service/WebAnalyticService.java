@@ -10,6 +10,7 @@ import com.example.management.entity.QueryCheckerEntity;
 import com.example.management.entity.TagEntity;
 import com.example.management.entity.WebAnalyticEntity;
 import com.example.management.exception.UrlException;
+import com.example.management.grpc.JobGRPCClient;
 import com.example.management.repository.JobRepository;
 import com.example.management.repository.QueryCheckerRepository;
 import com.example.management.repository.TagRepository;
@@ -64,6 +65,9 @@ public class WebAnalyticService {
 
     @Autowired
     private TagRepository tagRepository;
+    
+    @Autowired
+    private JobGRPCClient jobGRPCClient;
 
     @Value("${data.vietnamwork}")
     private String bodyAPI;
@@ -73,7 +77,7 @@ public class WebAnalyticService {
     public Map<String, Integer> analytics() {
         Map<String, Integer> resultMap = new HashMap<>();
         resultMap.put("itviec", analyticsItViec());
-        resultMap.put("vnwork", analyticsVietNamWork());
+        resultMap.put("vnwork", analyticsItViec());
         return resultMap;
     }
 
@@ -106,6 +110,15 @@ public class WebAnalyticService {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="ANALYST JOB IT VIEC GRPC">
+    public int analyticsItViecUseGrpc() {
+        JobEntity jobExist = jobRepository.findLastItem();
+        List<JobEntity> jobEntityList = jobGRPCClient.getDataListITViec(jobExist);
+        jobRepository.saveAll(jobEntityList);
+        return jobEntityList.size();
+    }
+    //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="ANALYST JOB OF IT VIEC">
     public int analyticsItViec() {
         int result = 0;
