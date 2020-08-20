@@ -6,21 +6,25 @@ import Home from './pages/home/index';
 import Widgets from './pages/widgets/index';
 import Validation from './pages/form/validation';
 import Table from './pages/form/table';
-import Job  from './pages/job/index';
+import Job from './pages/job/index';
 import Company from './pages/job/company'
+import Builder from './pages/builder'
 import PageNotFound from './pages/error/page-not-found'
 
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 class App extends React.Component {
 
   render() {
 
     return (
-      <div className="App">
+      <DndProvider backend={HTML5Backend}>
+        <div className="App">
           <Router>
             <Switch>
-              <Route exact path="/" component={Job} />
+              <Route exact path="/" component={Builder} />
               <Route exact path="/index" component={Job} />
               <Route exact path="/widgets" component={Widgets} />
               <Route exact path="/validation" component={Validation} />
@@ -30,6 +34,7 @@ class App extends React.Component {
             </Switch>
           </Router>
         </div>
+      </DndProvider>
     );
   }
 }
