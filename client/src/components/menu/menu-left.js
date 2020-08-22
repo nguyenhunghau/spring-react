@@ -1,35 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Component } from "react";
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link
-} from "react-router-dom";
-
-import '../css/style.css';
-import NavItem from './nav-item';
 import adminLTELogo from '../img/AdminLTELogo.png';
 import userLogo from '../img/user2-160x160.jpg';
-import { URL_MENU } from '../../constants/path'
 
 import { useSelector, useDispatch } from 'react-redux';
 import { ItemTypes } from '../../pages/ItemTypes';
-
 
 const MenuLeft = () => {
 
     const [navData, setNavData] = useState([]);
     const account = useSelector(state => state);
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        fetch(URL_MENU)
-            .then(resp => resp.json())
-            .then(resp => {
-                setNavData(resp);
-            })
-    }, []);
 
     const expandChild = (ev) => {
         console.log(ev);
