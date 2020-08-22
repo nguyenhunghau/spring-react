@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import update from 'immutability-helper'
 import { useDrop } from 'react-dnd'
 import { Control } from './control'
-// import update from 'immutability-helper'
 import { ItemTypes } from './ItemTypes'
 const Container = (props) => {
 

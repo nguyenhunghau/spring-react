@@ -6,7 +6,6 @@ import { useDrop } from 'react-dnd'
 import { Control } from './control'
 // import update from 'immutability-helper'
 import { ItemTypes } from './ItemTypes'
-import ControlListData from './data'
 import Container from "./container";
 import styles from './builder.module.css'
 import '../components/css/style.css';
