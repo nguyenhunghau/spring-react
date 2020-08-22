@@ -13,10 +13,15 @@ import adminLTELogo from '../img/AdminLTELogo.png';
 import userLogo from '../img/user2-160x160.jpg';
 import { URL_MENU } from '../../constants/path'
 
+import { useSelector, useDispatch } from 'react-redux';
+import { ItemTypes } from '../../pages/ItemTypes';
+
+
 const MenuLeft = () => {
 
     const [navData, setNavData] = useState([]);
-
+    const account = useSelector(state => state);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         fetch(URL_MENU)
@@ -28,6 +33,11 @@ const MenuLeft = () => {
 
     const expandChild = (ev) => {
         console.log(ev);
+    }
+
+    const addControl = (type) => {
+        dispatch({type: 'ADD', itemType: type});
+        console.log(account);
     }
 
     return (
@@ -59,27 +69,27 @@ const MenuLeft = () => {
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="pages/forms/general.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>General Elements</p>
+                                    <a class="nav-link" onClick={(e) => addControl(ItemTypes.TEXTBOX)}>
+                                    <i class="far fa-circle nav-icon"></i>
+                                        <p>Texbox</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="pages/forms/advanced.html" class="nav-link">
+                                    <a href="#" class="nav-link" onClick={(e) => addControl(ItemTypes.PHARAPH)}>
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Advanced Elements</p>
+                                        <p>Text Paraph</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="pages/forms/editors.html" class="nav-link">
+                                    <a href="#" class="nav-link" onClick={(e) => addControl(ItemTypes.BUTTON)}>
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Editors</p>
+                                        <p>Button</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="pages/forms/validation.html" class="nav-link">
+                                    <a href="#" class="nav-link" onClick={(e) => addControl(ItemTypes.TEXTAREA)}>
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Validation</p>
+                                        <p>Text Area</p>
                                     </a>
                                 </li>
                             </ul>

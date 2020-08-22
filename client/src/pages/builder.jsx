@@ -8,14 +8,24 @@ import { Control } from './control'
 import { ItemTypes } from './ItemTypes'
 import ControlListData from './data'
 import Container from "./container";
+import styles from './builder.module.css'
+import '../components/css/style.css';
+import {useSelector, useDispatch} from 'react-redux';
 
 const Builder = (props) => {
 
-    const [controlList, setControlList] = useState(ControlListData);
+    const [controlList, setControlList] = useState([]);
     const [isRender, setIsRender] = useState(0);
     const [wasDrop, setWasDrop] = useState(true);
+    const buiderSelector = useSelector(state => state.builder);
 
     const [collapsemenu, setCollapsemenu] = useState();
+
+
+    useEffect(() => {
+        console.log(buiderSelector);
+        setControlList(buiderSelector.data);
+    }, [buiderSelector.count]);
 
     const moveControl = (idOldLayout, idNewLayout, idControl, atIndex) => {
         const oldLayout = controlList.filter((c) => `${c.id}` === idOldLayout)[0];
@@ -64,11 +74,13 @@ const Builder = (props) => {
         <div className={collapsemenu ? 'sidebar-mini layout-fixed sidebar-collapse' : 'wrapper'} >
             <Header changeMenu={props.changeMenu} />
             <MenuLeft />
-            <div class="content-wrapper">
-                <div clas = "row">
-                    {controlList.map((controlLayout) => (
-                        <Container controlList={controlLayout}/>
-                    ))}
+            <div className={`content-wrapper container ${styles.container_builder}`}>
+                <div>
+                    <div className={`row ${styles.container_control}`}>
+                        {controlList.map((controlLayout) => (
+                            <Container controlList={controlLayout} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

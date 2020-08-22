@@ -1,50 +1,52 @@
-import React,  { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import update from 'immutability-helper'
 import { useDrop } from 'react-dnd'
-import { ControlNew } from './control-new'
+import { Control } from './control'
 // import update from 'immutability-helper'
 import { ItemTypes } from './ItemTypes'
 const Container = (props) => {
 
-    const [controlList, setControlList] = useState(props.controlList.children);
-    const [isRender, setIsRender] = useState(0);
-    const [wasDrop, setWasDrop] = useState(true);
+    const [controlList, setControlList] = useState(() => props.controlList.children);
 
     const [collapsemenu, setCollapsemenu] = useState();
 
     const pushControl = (control) => {
-        controlList.push(control);
         setControlList(controlList);
+        const newControlList = update(controlList, {
+            $push: [control]
+        });
+        setControlList(
+            newControlList
+        )
     }
 
     const removeControl = (index) => {
         const newControlList = update(controlList, {
             $splice: [
-              [index, 1],
+                [index, 1],
             ],
-          });
-          setControlList(
-              newControlList
-          )
+        });
+        setControlList(
+            newControlList
+        )
     }
 
     const moveControl = (idControl, atIndex) => {
         const { control, index } = findControl(idControl);
-        
+
         //Update the layout of cards by 
         // Remove control of old layout
 
         //Add new control at new layout
         const newControlList = update(controlList, {
-          $splice: [
-            [index, 1],
-            [atIndex, 0, control],
-          ],
+            $splice: [
+                [index, 1],
+                [atIndex, 0, control],
+            ],
         });
         setControlList(
             newControlList
         )
-        // setIsRender(isRender + 1);
     }
 
     const findLayout = (id) => {
@@ -63,23 +65,43 @@ const Container = (props) => {
         }
     }
 
-    const [, drop] = useDrop({ accept: ItemTypes.CONTROL })
+    const [, drop] = useDrop({
+        accept: ItemTypes.CONTROL,
+        drop(data, monitor, component) {
+            // console.log(props);
+            // console.log(monitor.getItem());
+            //console.log(component); //Not exist
+
+            // const { idLayout } = props;
+            const sourceObj = monitor.getItem();
+            if (props.controlList.id !== sourceObj.idLayout) {
+                pushControl(sourceObj.control);
+            }
+            else {
+                // sourceObj.children.
+            }
+            //remove sourceObj in old layout
+
+            // return {
+            //     listId: id
+            // };
+        }
+    })
 
     return (
-        <div ref={drop} class="col-md-3">
-            {controlList.map(control => (
-                <ControlNew
+        <div ref={drop} class="col-md-4">
+            {controlList.map((control, i) => (
+                <Control
                     key={control.id}
                     idLayout={`${props.controlList.id}`}
                     id={`${control.id}`}
-                    text={control.text}
+                    index={i}
                     findControl={findControl}
                     moveControl={moveControl}
                     findLayout={findLayout}
-                    wasDrop={wasDrop}
                     pushControl={pushControl}
                     removeControl={removeControl}
-                    setWasDrop={setWasDrop}
+                    control={control}
                 />
             ))}
         </div>

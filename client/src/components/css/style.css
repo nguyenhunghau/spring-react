@@ -4,3 +4,6 @@
 ul.nav-sidebar li {
     text-align: left;
 }
+.wrapper{
+    overflow-y: hidden;
+}

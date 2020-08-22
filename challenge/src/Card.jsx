@@ -17,8 +17,7 @@ export const Card = ({ id, idLayout, text, moveCard, moveControl, findLayout, fi
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-    begin: (monitor) => {
-      setWasDrop(false);
+    begin: (data) => {
     },
     end: (dropResult, monitor) => {
       const { id: droppedId, idLayout: idOfLayout, originalIndex } = monitor.getItem()
