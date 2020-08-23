@@ -1,67 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import update from 'immutability-helper'
-import { useDrop } from 'react-dnd'
-import { Control } from './control'
-import { ItemTypes } from './ItemTypes'
+import update from 'immutability-helper';
+import { useDrop } from 'react-dnd';
+import { Control } from './control';
+import { ItemTypes } from './ItemTypes';
+import {useSelector, useDispatch} from 'react-redux';
+
 const Container = (props) => {
 
-    const [controlList, setControlList] = useState(() => props.controlList.children);
-
+    // const [controlList, setControlList] = useState(() => props.controlList.children);
+    // const [controlList, setControlList] = useState([])
     const [collapsemenu, setCollapsemenu] = useState();
+    const dispatch = useDispatch();
 
+    const getContainer = (state, idContainer) => {
+        return state.data.filter((c) => `${c.id}` === idContainer)[0];
+    }
+    
+    const containerData = useSelector(item => getContainer(item.builder, props.controlList.id));
+    // const [controlLists, setControlList] = useState(controlList => (controlList? controlList.children: ))
+    
     const pushControl = (control) => {
-        setControlList(controlList);
-        const newControlList = update(controlList, {
-            $push: [control]
-        });
-        setControlList(
-            newControlList
-        )
+        // const newControlList = update(controlList, {
+        //     $push: [control]
+        // });
+        // setControlList(
+        //     newControlList
+        // )
+        dispatch({type: 'PUSH', idContainer: props.controlList.id, control: control})
     }
 
     const removeControl = (index) => {
-        const newControlList = update(controlList, {
-            $splice: [
-                [index, 1],
-            ],
-        });
-        setControlList(
-            newControlList
-        )
+        dispatch({type: 'REMOVE', idContainer: props.controlList.id, index: index});
+        // const newControlList = update(controlList, {
+        //     $splice: [
+        //         [index, 1],
+        //     ],
+        // });
+        // setControlList(
+        //     newControlList
+        // )
     }
 
-    const moveControl = (idControl, atIndex) => {
-        const { control, index } = findControl(idControl);
-
-        //Update the layout of cards by 
-        // Remove control of old layout
-
-        //Add new control at new layout
-        const newControlList = update(controlList, {
-            $splice: [
-                [index, 1],
-                [atIndex, 0, control],
-            ],
-        });
-        setControlList(
-            newControlList
-        )
-    }
-
-    const findLayout = (id) => {
-        return controlList.filter((c) => `${c.id}` === id)[0]
-        // return {
-        //   layout,
-        //   index: cards.indexOf(layout),
-        // }
-    }
-
-    const findControl = (id) => {
-        const control = controlList.filter((c) => `${c.id}` === id)[0];
-        return {
-            control,
-            index: controlList.indexOf(control),
-        }
+    const moveControl = (control, oldIndex, newIndex) => {
+        dispatch({type: 'MOVE', idContainer: props.controlList.id, control: control, oldIndex: oldIndex, newIndex: newIndex})
     }
 
     const [, drop] = useDrop({
@@ -75,29 +56,26 @@ const Container = (props) => {
             const sourceObj = monitor.getItem();
             if (props.controlList.id !== sourceObj.idLayout) {
                 pushControl(sourceObj.control);
-            }
-            else {
-                // sourceObj.children.
+            } else {
+                //moveControl(sourceObj.control, );
             }
             //remove sourceObj in old layout
 
-            // return {
-            //     listId: id
-            // };
+            return {
+                idContainer: props.controlList.id
+            };
         }
     })
 
     return (
         <div ref={drop} class="col-md-4">
-            {controlList.map((control, i) => (
+            {containerData.children && containerData.children.map((control, i) => (
                 <Control
                     key={control.id}
                     idLayout={`${props.controlList.id}`}
                     id={`${control.id}`}
                     index={i}
-                    findControl={findControl}
                     moveControl={moveControl}
-                    findLayout={findLayout}
                     pushControl={pushControl}
                     removeControl={removeControl}
                     control={control}
