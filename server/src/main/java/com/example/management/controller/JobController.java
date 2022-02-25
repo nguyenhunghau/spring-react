@@ -10,14 +10,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 //</editor-fold>
 
 /**
@@ -53,10 +52,15 @@ public class JobController {
     }
     
     @RequestMapping(value = "/getListCompanyJob", method = RequestMethod.GET)
-    public ResponseEntity<String> getListCompanyJob() throws JsonProcessingException {
+    public ResponseEntity<String> getListCompanyJob() throws JsonProcessingException, ExecutionException, InterruptedException {
         ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
     String dtoAsString = objectMapper.writeValueAsString(webAnalyticService.findJobListByCompany());
         return new ResponseEntity<>(dtoAsString, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/findById/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Object> findById(@PathVariable String id) {
+        return new ResponseEntity<>(webAnalyticService.findById(Integer.parseInt(id)), HttpStatus.OK);
     }
 }

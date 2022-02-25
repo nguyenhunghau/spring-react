@@ -15,8 +15,6 @@ import com.example.management.repository.JobRepository;
 import com.example.management.repository.QueryCheckerRepository;
 import com.example.management.repository.TagRepository;
 import com.example.management.repository.WebAnalyticRepository;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -30,6 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -69,9 +69,17 @@ public class WebAnalyticService {
     @Autowired
     private JobGRPCClient jobGRPCClient;
 
+    @Autowired
+    private JobCache jobCache;
+
     @Value("${data.vietnamwork}")
     private String bodyAPI;
     //</editor-fold>
+
+    public JobEntity findById(Integer id)  {
+        JobEntity entity = jobCache.getOnCache(id);
+        return entity;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="ANALYTICS JOB">
     public Map<String, Integer> analytics() {
@@ -148,6 +156,8 @@ public class WebAnalyticService {
     
     private List<JobEntity> saveJobEntityList(List<JobEntity> dataList) {
         List<JobEntity> saveList = new ArrayList<>();
+        List<JobEntity> result = new ArrayList<>();
+        int i = 0;
         for (JobEntity entity : dataList) {
             JobEntity jobExist = jobRepository.findByLinkAndTitle(entity.getLink(), entity.getTitle());
             if (jobExist != null) {
@@ -156,8 +166,15 @@ public class WebAnalyticService {
             String tagIdJoiner = makeTagIdJoiner(entity.getTagIds());
             entity.setTagIds(tagIdJoiner);
             saveList.add(entity);
+            i++;
+            if(i > 10) {
+                i = 0;
+                result.addAll((List<JobEntity>)jobRepository.saveAll(saveList));
+                saveList.clear();
+            }
         }
-        return (List<JobEntity>) jobRepository.saveAll(saveList);
+        result.addAll((List<JobEntity>)jobRepository.saveAll(saveList));
+        return result;
     }
 
     private String makeTagIdJoiner(String tagNames) {
@@ -183,16 +200,16 @@ public class WebAnalyticService {
         String company = "";
         try {
             company = URLDecoder.decode(jobSearchDTO.getCompany(), "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException | NullPointerException ex) {
             java.util.logging.Logger.getLogger(WebAnalyticService.class.getName()).log(Level.SEVERE, null, ex);
         }
         List<JobEntity> jobList = jobSearchDTO.getShowAll() ? (List<JobEntity>) jobRepository.findAll() : jobRepository.findAllNotExpired(new Date());
         List<TagEntity> tagList = (List<TagEntity>) tagRepository.findAll();
         for (JobEntity entity : jobList) {
-            JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
-            if (!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
-                continue;
-            }
+//            JsonObject object = new JsonParser().parse(entity.getCompany()).getAsJsonObject();
+//            if (!company.isEmpty() && !company.equals(object.get("Name").getAsString())) {
+//                continue;
+//            }
             String[] tagIdArray = entity.getTagIds().split(",");
             entity.setTagIds(makeTagNameJoiner(tagIdArray, tagList));
             resultList.add(entity);
@@ -214,9 +231,10 @@ public class WebAnalyticService {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="GET JOB BY COMPANY">
-    public List<JobCompanyDTO> findJobListByCompany() {
+    public List<JobCompanyDTO> findJobListByCompany() throws ExecutionException, InterruptedException {
         List<JobCompanyDTO> resultList = new ArrayList<>();
-        List<JobEntity> list = (List<JobEntity>) jobRepository.findAll();
+        Future<List<JobEntity>> future = jobRepository.findAllJobs();
+        List<JobEntity> list = future.get();// (List<JobEntity>) jobRepository.findAll();
         list.sort(Comparator.comparing(JobEntity::getCompany));
         String company = "";
         List<JobEntity> jobCompanyList = new ArrayList<>();

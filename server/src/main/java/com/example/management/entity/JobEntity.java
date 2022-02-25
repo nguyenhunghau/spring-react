@@ -58,15 +58,12 @@ public class JobEntity implements Serializable {
     @Column(name = "DATE_EXPIRED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateExpired;
-    
-    @Lob
+
     @Size(max = 65535)
     @Column(name = "DESCRIPTION")
     private String description;
-    @Lob
     @Column(name = "REQUIREMENT")
     private String requirement;
-    @Lob
     @Size(max = 65535)
     @Column(name = "LINK")
     private String link;

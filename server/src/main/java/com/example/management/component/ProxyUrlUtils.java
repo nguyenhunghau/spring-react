@@ -64,6 +64,9 @@ public class ProxyUrlUtils extends URLUtils {
         String tag = element.select(queryMap.get("TAG")).text();
         String address = element.select(queryMap.get("ADDRESS")).text();
         String[] dateArray = datePost.split(" ");
+        if(dateArray[0].endsWith("m") || dateArray[0].endsWith("h") || dateArray[0].endsWith("d")) {
+            dateArray[0] = dateArray[0].substring(0, dateArray[0].length() - 1);
+        }
         Date date = dateArray.length > 1 ? TimeUtils.createDate(Integer.parseInt(dateArray[0]), dateArray[1]) : new Date();
         JsonObject object = new JsonObject();
         object.addProperty("Name", company);
